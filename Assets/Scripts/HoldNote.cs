@@ -1,83 +1,85 @@
 using UnityEngine;
 
-public class HoldNote : MonoBehaviour
+public class HoldNode : MonoBehaviour
 {
     public float moveSpeed;
-    public float holdDuration = 1.0f;
 
+    private bool started = false;
+    private bool allowedRelease = false;
     private bool isHolding = false;
-    private bool isFinished = false;
-    private float holdTimer = 0f;
-    private bool isReleased = false; // 新增，记录有没有松手
-
-    private static float judgementLineX = 3f;
+    private bool finished = false;
+    private bool missed = false;
+    private bool releasedEarly = false;
 
     private SpriteRenderer sr;
-    private Vector3 originalScale;
+    private float width;
+    private static float judgementLineX = 3f;
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
-        originalScale = transform.localScale;
+        width = sr.bounds.size.x;
     }
 
     void Update()
     {
+        if (finished) return;
+
         transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
 
-        if (isFinished) return;
+        float rightEdge = transform.position.x + width / 2f;
+        float leftEdge = transform.position.x - width / 2f;
 
-        if (isHolding)
+        if (!started && rightEdge >= judgementLineX)
         {
-            holdTimer += Time.deltaTime;
-            float progress = Mathf.Clamp01(holdTimer / holdDuration);
-
-            // 吃掉自己
-            transform.localScale = new Vector3(originalScale.x * (1f - progress), originalScale.y, originalScale.z);
-
-            if (progress >= 1f)
+            started = true;
+            if (!isHolding)
             {
-                FinishHold();
+                Miss();
             }
         }
 
-        // 松手后，剩下的残留慢慢褪色
-        if (isReleased && sr != null)
+        if (!allowedRelease && leftEdge >= judgementLineX)
         {
-            Color c = sr.color;
-            c.a = Mathf.MoveTowards(c.a, 0f, Time.deltaTime * 0.5f); // 每秒减少0.5透明度
-            sr.color = c;
+            allowedRelease = true;
         }
 
-        // 过判定线+一段距离销毁
-        if (transform.position.x >= (judgementLineX + 2f))
+        if (transform.position.x > judgementLineX + 5f)
         {
             Destroy(gameObject);
         }
     }
 
-    public void StartHold()
+    public void PlayerPress()
     {
-        if (isFinished) return;
-        isHolding = true;
+        if (missed || finished) return;
+        if (started) isHolding = true;
     }
 
-    public void ReleaseHold()
+    public void PlayerRelease()
     {
-        if (isFinished) return;
-        isHolding = false;
-        isReleased = true;
+        if (missed || finished) return;
+        if (allowedRelease)
+            FinishHold();
+        else
+            EarlyRelease();
+    }
 
-        // 刚松手时，把透明度先降到70%
-        if (sr != null)
-        {
-            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.7f);
-        }
+    private void Miss()
+    {
+        missed = true;
+        if (sr != null) sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f);
+    }
+
+    private void EarlyRelease()
+    {
+        releasedEarly = true;
+        if (sr != null) sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f);
     }
 
     private void FinishHold()
     {
-        isFinished = true;
+        finished = true;
         Destroy(gameObject, 0.2f);
     }
 }

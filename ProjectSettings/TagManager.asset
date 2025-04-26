@@ -41,11 +41,14 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: track
+  - name: Track
     uniqueID: 3262058287
     locked: 0
   - name: Notes
     uniqueID: 2686204573
+    locked: 0
+  - name: NoteEffect
+    uniqueID: 3317209103
     locked: 0
   m_RenderingLayers:
   - Default
