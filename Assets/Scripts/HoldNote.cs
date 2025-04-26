@@ -17,7 +17,9 @@ public class HoldNote : MonoBehaviour
     private float width;
     private float originalWidth;
     private static float judgementLineX = 2.932941f; // 判定线位置
-    private static float hitWindow = 0.3f; 
+    [SerializeField]
+    private float hitWindow = 0.5f;
+
     private float missTimer = 0f;
 
     void Start()
