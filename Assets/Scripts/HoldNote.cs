@@ -16,9 +16,9 @@ public class HoldNote : MonoBehaviour
 
     private float width;
     private float originalWidth;
-    private static float judgementLineX = 2.932941f; // 判定线位置
+    private static float judgementLineX = 2.932941f; 
     [SerializeField]
-    private float hitWindow = 0.5f;
+    private float hitWindow = 0.5f; // 容错
 
     private float missTimer = 0f;
 
@@ -45,11 +45,13 @@ public class HoldNote : MonoBehaviour
         float rightEdge = transform.position.x + width / 2f;
         float leftEdge = transform.position.x - width / 2f;
 
+        // 可以按下阶段
         if (!canBePressed && rightEdge >= judgementLineX - hitWindow && rightEdge <= judgementLineX + hitWindow)
         {
             canBePressed = true;
         }
 
+        // 过了判定线还没按，就Miss
         if (canBePressed && rightEdge > judgementLineX + hitWindow)
         {
             if (!started)
@@ -59,16 +61,19 @@ public class HoldNote : MonoBehaviour
             canBePressed = false;
         }
 
+        // 左边接触判定线，允许松手
         if (!allowedRelease && Mathf.Abs(leftEdge - judgementLineX) <= hitWindow)
         {
             allowedRelease = true;
         }
 
+        // 正在Hold期间
         if (isHolding && !finished)
         {
             EatHold();
         }
 
+        // Miss后两秒销毁
         if (missed)
         {
             missTimer += Time.deltaTime;
@@ -79,6 +84,7 @@ public class HoldNote : MonoBehaviour
             }
         }
 
+        // 完全飞出屏幕后销毁
         if (transform.position.x > judgementLineX + 10f)
         {
             Destroy(gameObject);
@@ -118,7 +124,7 @@ public class HoldNote : MonoBehaviour
         if (width < 0) width = 0;
 
         transform.localScale = new Vector3(width / originalWidth, transform.localScale.y, transform.localScale.z);
-        transform.position -= new Vector3(eatAmount / 2f, 0, 0); // 这里是减！！从右向左吃掉
+        transform.position -= new Vector3(eatAmount / 2f, 0, 0); 
     }
 
     private void Miss()
@@ -143,5 +149,10 @@ public class HoldNote : MonoBehaviour
     {
         finished = true;
         Destroy(gameObject, 0.2f);
+    }
+
+    public bool CanBePressed()
+    {
+        return canBePressed;
     }
 }

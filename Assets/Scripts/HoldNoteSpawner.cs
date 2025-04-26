@@ -3,13 +3,18 @@ using System.Collections.Generic;
 
 public class HoldNoteSpawner : MonoBehaviour
 {
-    public Transform[] spawnPoints; // 红蓝白绿，按顺序
-    public GameObject[] holdPrefabs; // 16个Prefab，按颜色分段排列
+    public Transform[] spawnPoints; // 红蓝白绿轨道 spawn points
+    public GameObject[] holdPrefabs; // 16个Prefab：红蓝白绿 * 1-4拍
     public float startX = -11f;
     public float approachTime = 3f;
 
-    // 每条轨道一个活跃Hold列表
     private List<GameObject>[] activeHoldNotes = new List<GameObject>[4];
+
+    [Header("Auto Test Settings")]
+    public bool autoTest = false;  // 是否启用自动测试
+    private int currentTestIndex = 0;
+    private float testTimer = 0f;
+    public float testInterval = 3f; // 每隔几秒生成一个
 
     void Start()
     {
@@ -19,11 +24,21 @@ public class HoldNoteSpawner : MonoBehaviour
         }
     }
 
-    public void SpawnHoldNote(int lane, int holdLength) 
+    void Update()
     {
-        // lane = 0红, 1蓝, 2白, 3绿
-        // holdLength = 1, 2, 3, 4拍
+        if (autoTest)
+        {
+            testTimer += Time.deltaTime;
+            if (testTimer >= testInterval)
+            {
+                testTimer = 0f;
+                SpawnTestHold();
+            }
+        }
+    }
 
+    public void SpawnHoldNote(int lane, int holdLength)
+    {
         int prefabIndex = lane * 4 + (holdLength - 1);
 
         if (prefabIndex >= 0 && prefabIndex < holdPrefabs.Length)
@@ -53,5 +68,24 @@ public class HoldNoteSpawner : MonoBehaviour
         {
             activeHoldNotes[lane].Remove(note);
         }
+    }
+
+    private void SpawnTestHold()
+    {
+        if (currentTestIndex >= holdPrefabs.Length)
+        {
+            Debug.Log("测试完成，所有HoldNote已生成！");
+            autoTest = false; // 测完自动停止
+            return;
+        }
+
+        int lane = currentTestIndex / 4; // 每4个属于一个轨道
+        int holdLength = (currentTestIndex % 4) + 1; // 1-4拍
+
+        SpawnHoldNote(lane, holdLength);
+
+        Debug.Log($"生成测试：轨道 {lane}，长度 {holdLength}拍");
+
+        currentTestIndex++;
     }
 }

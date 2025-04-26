@@ -456,24 +456,26 @@ MonoBehaviour:
   - {fileID: 1815489570}
   - {fileID: 1228557907}
   holdPrefabs:
-  - {fileID: 5652581122522324104, guid: d6c7471039eef4b27b52067ff8d27375, type: 3}
-  - {fileID: 5326342789547489930, guid: 6b2eb7ca4ffbf43228066879abf2a644, type: 3}
-  - {fileID: 4884322897398482212, guid: eda6bca2792d1413880f541b28642c6a, type: 3}
-  - {fileID: 7780514690458740411, guid: f1bc6f9f5b77340e48b3d9ee2cfdc4dc, type: 3}
-  - {fileID: 1983497400587135976, guid: 7f7578a6145394a04a3ac93ba1bf087f, type: 3}
-  - {fileID: 699672832825266582, guid: 9c7a51fac21d242e6a6c109236fcff41, type: 3}
-  - {fileID: 8458723276992887321, guid: 677df25f0e48d458eb2b5e0c9be1c038, type: 3}
-  - {fileID: 551156032279956293, guid: d48c3a1ad8a494423895ad3aef243110, type: 3}
   - {fileID: 6823941673459322062, guid: 7205a7a84066d4d2ebc44e7e22892317, type: 3}
   - {fileID: 6668995816766671639, guid: 725ee7be97d164938a09304c06ee2f64, type: 3}
   - {fileID: 2413738287879075059, guid: fa7b02eb315884c3691dafecf29c107b, type: 3}
   - {fileID: 1716604187243056364, guid: 308889801e92c4693bd721d8772aeb8d, type: 3}
+  - {fileID: 5652581122522324104, guid: d6c7471039eef4b27b52067ff8d27375, type: 3}
+  - {fileID: 5326342789547489930, guid: 6b2eb7ca4ffbf43228066879abf2a644, type: 3}
+  - {fileID: 4884322897398482212, guid: eda6bca2792d1413880f541b28642c6a, type: 3}
+  - {fileID: 7780514690458740411, guid: f1bc6f9f5b77340e48b3d9ee2cfdc4dc, type: 3}
   - {fileID: 2851563480757810351, guid: f2118a9ae8fa94e0bb795c2faa28e258, type: 3}
   - {fileID: 2667012528805487610, guid: 296053c5d884242529267583f25b8a3a, type: 3}
   - {fileID: 7558368449244381, guid: d62ba2a652a1c4189bb3c447ed262a88, type: 3}
   - {fileID: 6249542697098099167, guid: 9058e5bf661304f0f908275a703efb64, type: 3}
+  - {fileID: 1983497400587135976, guid: 7f7578a6145394a04a3ac93ba1bf087f, type: 3}
+  - {fileID: 699672832825266582, guid: 9c7a51fac21d242e6a6c109236fcff41, type: 3}
+  - {fileID: 8458723276992887321, guid: 677df25f0e48d458eb2b5e0c9be1c038, type: 3}
+  - {fileID: 551156032279956293, guid: d48c3a1ad8a494423895ad3aef243110, type: 3}
   startX: -11
   approachTime: 3
+  autoTest: 0
+  testInterval: 3
 --- !u!4 &699063627
 Transform:
   m_ObjectHideFlags: 0

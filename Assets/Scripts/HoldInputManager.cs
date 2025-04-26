@@ -36,7 +36,11 @@ public class HoldInputManager : MonoBehaviour
     private void TryPressHold(int lane)
     {
         GameObject nearestHoldNote = FindNearestHoldNote(lane);
-        if (nearestHoldNote == null) return;
+        if (nearestHoldNote == null)
+        {
+            Debug.Log($"❌ 没找到 {lane} 轨道上可以按的HoldNote！");
+            return;
+        }
 
         HoldNote holdNote = nearestHoldNote.GetComponent<HoldNote>();
         holdNote.PlayerPress();
@@ -62,12 +66,18 @@ public class HoldInputManager : MonoBehaviour
         foreach (GameObject note in notes)
         {
             if (note == null) continue;
-            float distance = Mathf.Abs(note.transform.position.x - 2.932941f);
 
-            if (distance < minDistance)
+            HoldNote holdNote = note.GetComponent<HoldNote>();
+
+            // 只找可以按的！
+            if (holdNote != null && holdNote.CanBePressed())
             {
-                minDistance = distance;
-                nearest = note;
+                float distance = Mathf.Abs(note.transform.position.x - 2.932941f);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    nearest = note;
+                }
             }
         }
 
