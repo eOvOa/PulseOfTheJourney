@@ -98,6 +98,7 @@ GameObject:
   - component: {fileID: 5291671551676294280}
   - component: {fileID: 6665724906407796989}
   - component: {fileID: 4702424063441428921}
+  - component: {fileID: 228891172522025482}
   m_Layer: 0
   m_Name: WhiteHold1
   m_TagString: Untagged
@@ -175,12 +176,26 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2851563480757810351}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4eeec915c87ed492ea22195af45bb1ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 0
+--- !u!114 &228891172522025482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2851563480757810351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58162d55c1b4046f1a8aa81553508181, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 0
+  hitWindow: 0.5
 --- !u!1 &4694491654190313469
 GameObject:
   m_ObjectHideFlags: 0

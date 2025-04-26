@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2922027701069729185}
   - component: {fileID: 5456280959700653528}
   - component: {fileID: 6673307747511228875}
+  - component: {fileID: 6931533124889763069}
   m_Layer: 0
   m_Name: GreenHold2
   m_TagString: Untagged
@@ -88,12 +89,26 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 699672832825266582}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4eeec915c87ed492ea22195af45bb1ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 3
+--- !u!114 &6931533124889763069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699672832825266582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58162d55c1b4046f1a8aa81553508181, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 0
+  hitWindow: 0.5
 --- !u!1 &2964974368766437107
 GameObject:
   m_ObjectHideFlags: 0

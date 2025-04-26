@@ -98,6 +98,7 @@ GameObject:
   - component: {fileID: 1181837365384513196}
   - component: {fileID: -2045786706204566159}
   - component: {fileID: -840059548210359527}
+  - component: {fileID: 5082168484136973632}
   m_Layer: 0
   m_Name: BlueHold3
   m_TagString: Untagged
@@ -175,12 +176,26 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4884322897398482212}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4eeec915c87ed492ea22195af45bb1ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 3
+--- !u!114 &5082168484136973632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4884322897398482212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58162d55c1b4046f1a8aa81553508181, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 0
+  hitWindow: 0.5
 --- !u!1 &5089168991649736105
 GameObject:
   m_ObjectHideFlags: 0
