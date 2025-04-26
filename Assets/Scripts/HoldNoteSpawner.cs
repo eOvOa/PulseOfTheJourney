@@ -2,39 +2,35 @@ using UnityEngine;
 
 public class HoldNoteSpawner : MonoBehaviour
 {
-    public Transform[] spawnPoints; 
-    public GameObject[] holdPrefabs; 
+    public Transform spawnPoint;
+    public GameObject holdPrefab;
     public float startX = -11f;
     public float approachTime = 3f;
 
-    private GameObject[] currentHoldNotes = new GameObject[4];
+    private GameObject currentHoldNote;
 
     void Update()
     {
-        
         if (Input.GetKeyDown(KeyCode.Q))
-            SpawnHold(1); 
+        {
+            SpawnHoldNote();
+        }
     }
 
-    public void SpawnHold(int lane)
+    public void SpawnHoldNote()
     {
-        GameObject note = Instantiate(holdPrefabs[lane], spawnPoints[lane].position, Quaternion.identity);
-        HoldNode hold = note.GetComponent<HoldNode>();
-        hold.moveSpeed = (3f - startX) / approachTime;
-        currentHoldNotes[lane] = note;
+        currentHoldNote = Instantiate(holdPrefab, spawnPoint.position, Quaternion.identity);
+        HoldNote holdNote = currentHoldNote.GetComponent<HoldNote>();
+        holdNote.moveSpeed = (3f - startX) / approachTime;
     }
 
-    public void TryHoldPress(int lane)
+    public GameObject GetCurrentHoldNote()
     {
-        if (currentHoldNotes[lane] == null) return;
-        HoldNode hold = currentHoldNotes[lane].GetComponent<HoldNode>();
-        hold.PlayerPress();
+        return currentHoldNote;
     }
 
-    public void TryHoldRelease(int lane)
+    public void ClearHoldNote()
     {
-        if (currentHoldNotes[lane] == null) return;
-        HoldNode hold = currentHoldNotes[lane].GetComponent<HoldNode>();
-        hold.PlayerRelease();
+        currentHoldNote = null;
     }
 }

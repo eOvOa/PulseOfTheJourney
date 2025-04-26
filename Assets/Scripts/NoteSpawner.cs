@@ -1,36 +1,41 @@
 using UnityEngine;
 
-public class HoldNoteSpawner : MonoBehaviour
+public class NoteSpawner : MonoBehaviour
 {
-    public Transform spawnPoint; // 只有蓝轨一个spawn点
-    public GameObject holdPrefab; // 只有蓝Hold一个Prefab
+    public Transform[] spawnPoints;
+    public GameObject[] notePrefabs;
     public float startX = -11f;
     public float approachTime = 3f;
 
-    private GameObject currentHoldNote;
+    private GameObject[] currentNotes = new GameObject[4];
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            SpawnHoldNote();
-        }
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            SpawnNote(0);
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+            SpawnNote(1);
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+            SpawnNote(2);
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+            SpawnNote(3);
     }
 
-    public void SpawnHoldNote()
+    public void SpawnNote(int lane)
     {
-        currentHoldNote = Instantiate(holdPrefab, spawnPoint.position, Quaternion.identity);
-        HoldNote holdNote = currentHoldNote.GetComponent<HoldNote>();
-        holdNote.moveSpeed = (3f - startX) / approachTime;
+        GameObject note = Instantiate(notePrefabs[lane], spawnPoints[lane].position, Quaternion.identity);
+        Note noteScript = note.GetComponent<Note>();
+        noteScript.moveSpeed = (3f - startX) / approachTime;
+        currentNotes[lane] = note;
     }
 
-    public GameObject GetCurrentHoldNote()
+    public GameObject GetCurrentNote(int lane)
     {
-        return currentHoldNote;
+        return currentNotes[lane];
     }
 
-    public void ClearHoldNote()
+    public void ClearNote(int lane)
     {
-        currentHoldNote = null;
+        currentNotes[lane] = null;
     }
 }
