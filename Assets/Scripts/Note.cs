@@ -20,12 +20,12 @@ public class Note : MonoBehaviour
 
     void Update()
     {
-        // 不管有没有判定，都要继续走
+       
         transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
 
         if (!judged)
         {
-            // 还没判定过，检查是不是Miss
+        
             if (transform.position.x > judgementLineX + 2f)
             {
                 Miss();
@@ -71,7 +71,7 @@ public class Note : MonoBehaviour
 
         if (sr != null)
         {
-            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f); // 变灰
+            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f); 
         }
     }
 }

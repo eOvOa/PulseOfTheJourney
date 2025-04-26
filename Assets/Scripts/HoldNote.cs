@@ -1,85 +1,75 @@
 using UnityEngine;
 
-public class HoldNode : MonoBehaviour
+public class HoldNote : MonoBehaviour
 {
     public float moveSpeed;
-
-    private bool started = false;
-    private bool allowedRelease = false;
-    private bool isHolding = false;
-    private bool finished = false;
+    private bool judged = false;
     private bool missed = false;
-    private bool releasedEarly = false;
+
+    private static float judgementLineX = 3f; 
+    private static float hitWindow = 0.5f;    
 
     private SpriteRenderer sr;
-    private float width;
-    private static float judgementLineX = 3f;
+    private float missTimer = 0f;
+    private bool scheduledDestroy = false;
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
-        width = sr.bounds.size.x;
     }
 
     void Update()
     {
-        if (finished) return;
-
         transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
 
-        float rightEdge = transform.position.x + width / 2f;
-        float leftEdge = transform.position.x - width / 2f;
-
-        if (!started && rightEdge >= judgementLineX)
+        if (!judged)
         {
-            started = true;
-            if (!isHolding)
+            if (transform.position.x > judgementLineX + 2f)
             {
                 Miss();
             }
         }
 
-        if (!allowedRelease && leftEdge >= judgementLineX)
+        if (missed)
         {
-            allowedRelease = true;
-        }
-
-        if (transform.position.x > judgementLineX + 5f)
-        {
-            Destroy(gameObject);
+            missTimer += Time.deltaTime;
+            if (missTimer >= 2f && !scheduledDestroy)
+            {
+                Destroy(gameObject);
+                scheduledDestroy = true;
+            }
         }
     }
 
-    public void PlayerPress()
+    public void TryJudge()
     {
-        if (missed || finished) return;
-        if (started) isHolding = true;
-    }
+        if (judged) return;
 
-    public void PlayerRelease()
-    {
-        if (missed || finished) return;
-        if (allowedRelease)
-            FinishHold();
+        float distance = Mathf.Abs(transform.position.x - judgementLineX);
+        if (distance <= hitWindow)
+        {
+            Hit();
+        }
         else
-            EarlyRelease();
+        {
+            Miss();
+        }
+    }
+
+    private void Hit()
+    {
+        judged = true;
+        Destroy(gameObject);
     }
 
     private void Miss()
     {
+        judged = true;
         missed = true;
-        if (sr != null) sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f);
-    }
 
-    private void EarlyRelease()
-    {
-        releasedEarly = true;
-        if (sr != null) sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f);
-    }
-
-    private void FinishHold()
-    {
-        finished = true;
-        Destroy(gameObject, 0.2f);
+        if (sr != null)
+        {
+            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f);
+        }
     }
 }

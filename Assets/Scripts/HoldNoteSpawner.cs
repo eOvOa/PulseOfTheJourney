@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class HoldNoteSpawner : MonoBehaviour
 {
-    public Transform[] spawnPoints; // 红 蓝 白 绿轨
-    public GameObject[] holdPrefabs; // 红Hold 蓝Hold 白Hold 绿Hold
+    public Transform[] spawnPoints; 
+    public GameObject[] holdPrefabs; 
     public float startX = -11f;
     public float approachTime = 3f;
 
@@ -11,9 +11,9 @@ public class HoldNoteSpawner : MonoBehaviour
 
     void Update()
     {
-        // 测试阶段只开Q轨（蓝色）
+        
         if (Input.GetKeyDown(KeyCode.Q))
-            SpawnHold(1); // 蓝Hold轨道
+            SpawnHold(1); 
     }
 
     public void SpawnHold(int lane)
