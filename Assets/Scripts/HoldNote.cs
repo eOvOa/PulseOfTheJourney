@@ -16,9 +16,9 @@ public class HoldNote : MonoBehaviour
 
     private float width;
     private float originalWidth;
-    private static float judgementLineX = 2.932941f; 
+    private static float judgementLineX = 2.932941f;
     [SerializeField]
-    private float hitWindow = 0.5f; // 容错
+    private float hitWindow = 0.5f;
 
     private float missTimer = 0f;
 
@@ -45,13 +45,11 @@ public class HoldNote : MonoBehaviour
         float rightEdge = transform.position.x + width / 2f;
         float leftEdge = transform.position.x - width / 2f;
 
-        // 可以按下阶段
         if (!canBePressed && rightEdge >= judgementLineX - hitWindow && rightEdge <= judgementLineX + hitWindow)
         {
             canBePressed = true;
         }
 
-        // 过了判定线还没按，就Miss
         if (canBePressed && rightEdge > judgementLineX + hitWindow)
         {
             if (!started)
@@ -61,19 +59,16 @@ public class HoldNote : MonoBehaviour
             canBePressed = false;
         }
 
-        // 左边接触判定线，允许松手
         if (!allowedRelease && Mathf.Abs(leftEdge - judgementLineX) <= hitWindow)
         {
             allowedRelease = true;
         }
 
-        // 正在Hold期间
         if (isHolding && !finished)
         {
             EatHold();
         }
 
-        // Miss后两秒销毁
         if (missed)
         {
             missTimer += Time.deltaTime;
@@ -84,10 +79,21 @@ public class HoldNote : MonoBehaviour
             }
         }
 
-        // 完全飞出屏幕后销毁
         if (transform.position.x > judgementLineX + 10f)
         {
             Destroy(gameObject);
+        }
+
+        //实时加分或者扣分
+        if (isHolding && !finished)
+        {
+            int points = Mathf.RoundToInt(3 * Time.deltaTime * 1000);
+            ScoreManager.Instance.AddScore(points);
+        }
+        else if (missed && !finished) 
+        {
+            int points = Mathf.RoundToInt(1 * Time.deltaTime * 1000);
+            ScoreManager.Instance.SubtractScore(points);
         }
     }
 
@@ -124,7 +130,7 @@ public class HoldNote : MonoBehaviour
         if (width < 0) width = 0;
 
         transform.localScale = new Vector3(width / originalWidth, transform.localScale.y, transform.localScale.z);
-        transform.position -= new Vector3(eatAmount / 2f, 0, 0); 
+        transform.position -= new Vector3(eatAmount / 2f, 0, 0);
     }
 
     private void Miss()
@@ -132,7 +138,7 @@ public class HoldNote : MonoBehaviour
         missed = true;
         if (backgroundRenderer != null)
         {
-            backgroundRenderer.color = new Color(backgroundRenderer.color.r, backgroundRenderer.color.g, backgroundRenderer.color.b, 0.25f);
+            backgroundRenderer.color = new Color(0.5f, 0.5f, 0.5f, 0.25f);
         }
     }
 
@@ -140,9 +146,10 @@ public class HoldNote : MonoBehaviour
     {
         if (backgroundRenderer != null)
         {
-            backgroundRenderer.color = new Color(backgroundRenderer.color.r, backgroundRenderer.color.g, backgroundRenderer.color.b, 0.25f);
+            backgroundRenderer.color = new Color(0.5f, 0.5f, 0.5f, 0.25f);
         }
         isHolding = false;
+        missed = true; 
     }
 
     private void FinishHold()
