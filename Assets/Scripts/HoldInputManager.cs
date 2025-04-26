@@ -7,38 +7,53 @@ public class HoldInputManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            TryPressHold();
-        }
+        // 四条轨道，Q W E R分别控制
+        if (Input.GetKeyDown(KeyCode.Q))
+            TryPressHold(0); // 红
 
-        if (Input.GetKeyUp(KeyCode.K))
-        {
-            TryReleaseHold();
-        }
+        if (Input.GetKeyUp(KeyCode.Q))
+            TryReleaseHold(0);
+
+        if (Input.GetKeyDown(KeyCode.W))
+            TryPressHold(1); // 蓝
+
+        if (Input.GetKeyUp(KeyCode.W))
+            TryReleaseHold(1);
+
+        if (Input.GetKeyDown(KeyCode.E))
+            TryPressHold(2); // 白
+
+        if (Input.GetKeyUp(KeyCode.E))
+            TryReleaseHold(2);
+
+        if (Input.GetKeyDown(KeyCode.R))
+            TryPressHold(3); // 绿
+
+        if (Input.GetKeyUp(KeyCode.R))
+            TryReleaseHold(3);
     }
 
-    private void TryPressHold()
+    private void TryPressHold(int lane)
     {
-        GameObject nearestHoldNote = FindNearestHoldNote();
+        GameObject nearestHoldNote = FindNearestHoldNote(lane);
         if (nearestHoldNote == null) return;
 
         HoldNote holdNote = nearestHoldNote.GetComponent<HoldNote>();
         holdNote.PlayerPress();
     }
 
-    private void TryReleaseHold()
+    private void TryReleaseHold(int lane)
     {
-        GameObject nearestHoldNote = FindNearestHoldNote();
+        GameObject nearestHoldNote = FindNearestHoldNote(lane);
         if (nearestHoldNote == null) return;
 
         HoldNote holdNote = nearestHoldNote.GetComponent<HoldNote>();
         holdNote.PlayerRelease();
     }
 
-    private GameObject FindNearestHoldNote()
+    private GameObject FindNearestHoldNote(int lane)
     {
-        List<GameObject> notes = holdSpawner.GetActiveHoldNotes();
+        List<GameObject> notes = holdSpawner.GetActiveHoldNotes(lane);
         if (notes.Count == 0) return null;
 
         GameObject nearest = null;
