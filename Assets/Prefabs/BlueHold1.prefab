@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8164149523594798883}
   - component: {fileID: 2963993073488433039}
   - component: {fileID: 1527976257287298073}
+  - component: {fileID: 2945629180069039239}
   m_Layer: 0
   m_Name: BlueHold1
   m_TagString: Untagged
@@ -75,7 +76,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1608762723
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: -6854020231393765921, guid: d0a69e6ba05bf46eabef8f237f2bdc81, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -134,3 +135,17 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.32, y: 1.48}
   m_EdgeRadius: 0
+--- !u!114 &2945629180069039239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5652581122522324104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4eeec915c87ed492ea22195af45bb1ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetTime: 0
+  moveSpeed: 3

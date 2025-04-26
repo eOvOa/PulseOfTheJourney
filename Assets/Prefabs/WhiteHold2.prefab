@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8045118670532217312}
   - component: {fileID: 7520650222024601861}
   - component: {fileID: 8010664857959591426}
+  - component: {fileID: 1758112664674933340}
   m_Layer: 0
   m_Name: WhiteHold2
   m_TagString: Untagged
@@ -75,7 +76,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1608762723
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 2543325091707144538, guid: 25575ef1b917f4a17abe796f4f8716d3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -134,3 +135,17 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.6, y: 1.48}
   m_EdgeRadius: 0
+--- !u!114 &1758112664674933340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2667012528805487610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4eeec915c87ed492ea22195af45bb1ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetTime: 0
+  moveSpeed: 0

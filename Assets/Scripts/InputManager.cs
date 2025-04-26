@@ -3,11 +3,10 @@ using System.Collections.Generic;
 
 public class InputManager : MonoBehaviour
 {
-    public List<Note>[] laneNotes = new List<Note>[4]; // 四个轨道，每条轨道上的活跃音符列表
+    public List<Note>[] laneNotes = new List<Note>[4]; // 四条轨道上的音符列表
 
     void Start()
     {
-        // 初始化四个轨道的音符表
         for (int i = 0; i < 4; i++)
         {
             laneNotes[i] = new List<Note>();
@@ -38,13 +37,18 @@ public class InputManager : MonoBehaviour
     {
         if (laneNotes[lane].Count == 0) return;
 
-        // 找到最靠近判定线的音符
         Note closestNote = null;
         float closestDist = Mathf.Infinity;
 
-        foreach (var note in laneNotes[lane])
+        // 遍历轨道上的所有Note，找最近的可以打的
+        for (int i = 0; i < laneNotes[lane].Count; i++)
         {
-            float dist = Mathf.Abs(note.transform.position.x - 3f); // 判定线X=3
+            var note = laneNotes[lane][i];
+
+            // 🛠 关键：如果这个Note已经被销毁了，就跳过
+            if (note == null) continue;
+
+            float dist = Mathf.Abs(note.transform.position.x - 3f);
             if (dist < closestDist)
             {
                 closestDist = dist;
@@ -52,15 +56,15 @@ public class InputManager : MonoBehaviour
             }
         }
 
+        // 打击最近的
         if (closestNote != null && closestNote.CanBeHit())
         {
             closestNote.Hit();
             laneNotes[lane].Remove(closestNote);
-            // 这里可以加分数、Combo系统
         }
     }
 
-    // 给Spawner调用：生成音符时登记到对应轨道
+
     public void RegisterNote(int lane, Note note)
     {
         laneNotes[lane].Add(note);
