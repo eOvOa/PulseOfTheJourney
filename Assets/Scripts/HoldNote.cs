@@ -3,31 +3,68 @@ using UnityEngine;
 public class HoldNote : MonoBehaviour
 {
     public float moveSpeed;
-    private bool judged = false;
+
+    private SpriteRenderer backgroundRenderer;
+
+    private bool canBePressed = false;
+    private bool started = false;
+    private bool allowedRelease = false;
+    private bool isHolding = false;
+    private bool finished = false;
     private bool missed = false;
-
-    private static float judgementLineX = 3f; 
-    private static float hitWindow = 0.5f;    
-
-    private SpriteRenderer sr;
-    private float missTimer = 0f;
     private bool scheduledDestroy = false;
+
+    private float width;
+    private float originalWidth;
+    private static float judgementLineX = 2.932941f; // 判定线位置
+    private static float hitWindow = 0.3f; 
+    private float missTimer = 0f;
 
     void Start()
     {
-        sr = GetComponent<SpriteRenderer>();
+        Transform backgroundTransform = transform.Find("Background");
+        if (backgroundTransform != null)
+        {
+            backgroundRenderer = backgroundTransform.GetComponent<SpriteRenderer>();
+        }
+        else
+        {
+            Debug.LogError("Background not found under HoldNote prefab!");
+        }
+
+        width = backgroundRenderer.bounds.size.x;
+        originalWidth = width;
     }
 
     void Update()
     {
         transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
 
-        if (!judged)
+        float rightEdge = transform.position.x + width / 2f;
+        float leftEdge = transform.position.x - width / 2f;
+
+        if (!canBePressed && rightEdge >= judgementLineX - hitWindow && rightEdge <= judgementLineX + hitWindow)
         {
-            if (transform.position.x > judgementLineX + 2f)
+            canBePressed = true;
+        }
+
+        if (canBePressed && rightEdge > judgementLineX + hitWindow)
+        {
+            if (!started)
             {
                 Miss();
             }
+            canBePressed = false;
+        }
+
+        if (!allowedRelease && Mathf.Abs(leftEdge - judgementLineX) <= hitWindow)
+        {
+            allowedRelease = true;
+        }
+
+        if (isHolding && !finished)
+        {
+            EatHold();
         }
 
         if (missed)
@@ -39,37 +76,70 @@ public class HoldNote : MonoBehaviour
                 scheduledDestroy = true;
             }
         }
+
+        if (transform.position.x > judgementLineX + 10f)
+        {
+            Destroy(gameObject);
+        }
     }
 
-    public void TryJudge()
+    public void PlayerPress()
     {
-        if (judged) return;
+        if (missed || finished) return;
 
-        float distance = Mathf.Abs(transform.position.x - judgementLineX);
-        if (distance <= hitWindow)
+        if (canBePressed)
         {
-            Hit();
+            started = true;
+            isHolding = true;
+        }
+    }
+
+    public void PlayerRelease()
+    {
+        if (missed || finished) return;
+
+        if (allowedRelease)
+        {
+            FinishHold();
         }
         else
         {
-            Miss();
+            EarlyRelease();
         }
     }
 
-    private void Hit()
+    private void EatHold()
     {
-        judged = true;
-        Destroy(gameObject);
+        float eatAmount = moveSpeed * Time.deltaTime;
+
+        width -= eatAmount;
+        if (width < 0) width = 0;
+
+        transform.localScale = new Vector3(width / originalWidth, transform.localScale.y, transform.localScale.z);
+        transform.position -= new Vector3(eatAmount / 2f, 0, 0); // 这里是减！！从右向左吃掉
     }
 
     private void Miss()
     {
-        judged = true;
         missed = true;
-
-        if (sr != null)
+        if (backgroundRenderer != null)
         {
-            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f);
+            backgroundRenderer.color = new Color(backgroundRenderer.color.r, backgroundRenderer.color.g, backgroundRenderer.color.b, 0.25f);
         }
+    }
+
+    private void EarlyRelease()
+    {
+        if (backgroundRenderer != null)
+        {
+            backgroundRenderer.color = new Color(backgroundRenderer.color.r, backgroundRenderer.color.g, backgroundRenderer.color.b, 0.25f);
+        }
+        isHolding = false;
+    }
+
+    private void FinishHold()
+    {
+        finished = true;
+        Destroy(gameObject, 0.2f);
     }
 }

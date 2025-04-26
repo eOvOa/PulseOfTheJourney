@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class HoldInputManager : MonoBehaviour
 {
@@ -6,20 +7,55 @@ public class HoldInputManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.K)) 
+        if (Input.GetKeyDown(KeyCode.K))
         {
-            TryJudgeHold();
+            TryPressHold();
+        }
+
+        if (Input.GetKeyUp(KeyCode.K))
+        {
+            TryReleaseHold();
         }
     }
 
-    private void TryJudgeHold()
+    private void TryPressHold()
     {
-        GameObject holdObj = holdSpawner.GetCurrentHoldNote();
-        if (holdObj == null) return;
+        GameObject nearestHoldNote = FindNearestHoldNote();
+        if (nearestHoldNote == null) return;
 
-        HoldNote holdNote = holdObj.GetComponent<HoldNote>();
-        holdNote.TryJudge();
+        HoldNote holdNote = nearestHoldNote.GetComponent<HoldNote>();
+        holdNote.PlayerPress();
+    }
 
-        holdSpawner.ClearHoldNote();
+    private void TryReleaseHold()
+    {
+        GameObject nearestHoldNote = FindNearestHoldNote();
+        if (nearestHoldNote == null) return;
+
+        HoldNote holdNote = nearestHoldNote.GetComponent<HoldNote>();
+        holdNote.PlayerRelease();
+    }
+
+    private GameObject FindNearestHoldNote()
+    {
+        List<GameObject> notes = holdSpawner.GetActiveHoldNotes();
+        if (notes.Count == 0) return null;
+
+        GameObject nearest = null;
+        float minDistance = float.MaxValue;
+
+        foreach (GameObject note in notes)
+        {
+            if (note == null) continue;
+            float distance = Mathf.Abs(note.transform.position.x - 2.932941f);
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearest = note;
+            }
+        }
+
+        return nearest;
     }
 }

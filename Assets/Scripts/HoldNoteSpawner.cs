@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class HoldNoteSpawner : MonoBehaviour
 {
@@ -7,7 +8,7 @@ public class HoldNoteSpawner : MonoBehaviour
     public float startX = -11f;
     public float approachTime = 3f;
 
-    private GameObject currentHoldNote;
+    private List<GameObject> activeHoldNotes = new List<GameObject>();
 
     void Update()
     {
@@ -19,18 +20,23 @@ public class HoldNoteSpawner : MonoBehaviour
 
     public void SpawnHoldNote()
     {
-        currentHoldNote = Instantiate(holdPrefab, spawnPoint.position, Quaternion.identity);
-        HoldNote holdNote = currentHoldNote.GetComponent<HoldNote>();
-        holdNote.moveSpeed = (3f - startX) / approachTime;
+        GameObject holdNoteObj = Instantiate(holdPrefab, spawnPoint.position, Quaternion.identity);
+        HoldNote holdNote = holdNoteObj.GetComponent<HoldNote>();
+        holdNote.moveSpeed = (2.932941f - startX) / approachTime;
+
+        activeHoldNotes.Add(holdNoteObj);
     }
 
-    public GameObject GetCurrentHoldNote()
+    public List<GameObject> GetActiveHoldNotes()
     {
-        return currentHoldNote;
+        return activeHoldNotes;
     }
 
-    public void ClearHoldNote()
+    public void RemoveHoldNote(GameObject note)
     {
-        currentHoldNote = null;
+        if (activeHoldNotes.Contains(note))
+        {
+            activeHoldNotes.Remove(note);
+        }
     }
 }
