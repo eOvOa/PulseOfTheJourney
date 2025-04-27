@@ -1,12 +1,12 @@
 using UnityEngine;
-using TMPro; // ✅ 记得改用 TextMeshPro命名空间
+using TMPro; 
 
 public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance;
 
     public int score = 0;
-    public TextMeshProUGUI scoreText; // ✅ 用TextMeshProUGUI替代老的Text
+    public TextMeshProUGUI scoreText; 
 
     private void Awake()
     {

@@ -69,7 +69,7 @@ public class HoldNoteSpawner : MonoBehaviour
 
             HoldNote holdNote = holdNoteObj.GetComponent<HoldNote>();
             holdNote.moveSpeed = (2.932941f - startX) / BeatmapLoader.Instance.approachTime;
-            holdNote.lane = lane; // <-- 加上这个！！！
+            holdNote.lane = lane; 
 
             activeHoldNotes[lane].Add(holdNoteObj);
         }
