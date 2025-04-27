@@ -7,15 +7,18 @@ public class Note : MonoBehaviour
     private bool judged = false;
     private bool missed = false;
 
-    private static float judgementLineX = 3f; 
-    private static float hitWindow = 0.5f;    
+    private static float judgementLineX = 2.932941f; 
+    [SerializeField]
+    private float hitWindow = 0.5f; // 容错窗口
 
     private SpriteRenderer sr;
     private float missTimer = 0f;
     private bool scheduledDestroy = false;
 
-    public Sprite emptySprite; 
+    public Sprite emptySprite;
     private Animator animator;
+
+    private bool canBePressed = false;
 
     void Start()
     {
@@ -25,17 +28,23 @@ public class Note : MonoBehaviour
 
     void Update()
     {
-       
-        //transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
+        transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
 
-        if (!judged || missed)
+        if (!judged)
         {
-            // move this line so the key stops at wherr you hit it and plays Hit animation
-            transform.Translate(Vector3.right * moveSpeed * Time.deltaTime); 
-        
-            if (transform.position.x > judgementLineX) // Immediately change key transparency if passed the judgement line (+2f removed)
+            float distance = Mathf.Abs(transform.position.x - judgementLineX);
+
+            if (distance <= hitWindow)
             {
-                Miss();
+                canBePressed = true;
+            }
+
+            if (transform.position.x > judgementLineX + hitWindow)
+            {
+                if (!judged)
+                {
+                    Miss();
+                }
             }
         }
 
@@ -54,8 +63,7 @@ public class Note : MonoBehaviour
     {
         if (judged) return;
 
-        float distance = Mathf.Abs(transform.position.x - judgementLineX);
-        if (distance <= hitWindow)
+        if (canBePressed)
         {
             Hit();
         }
@@ -68,12 +76,17 @@ public class Note : MonoBehaviour
     private void Hit()
     {
         judged = true;
-        sr.sprite = emptySprite; // Fake key disappear
+        canBePressed = false;
+
+        sr.sprite = emptySprite; // 假装消失
         animator.Play("Hit");
+
+      
+        ScoreManager.Instance.AddScore(2000);
 
         StartCoroutine(HitSequence());
 
-        IEnumerator HitSequence() // Destroy game object after the animation played
+        IEnumerator HitSequence()
         {
             yield return new WaitForSeconds(0.15f);
             Destroy(gameObject);
@@ -84,10 +97,14 @@ public class Note : MonoBehaviour
     {
         judged = true;
         missed = true;
+        canBePressed = false;
 
         if (sr != null)
         {
-            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f); 
+            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f); // 变灰
         }
+
+       
+        ScoreManager.Instance.SubtractScore(2000);
     }
 }

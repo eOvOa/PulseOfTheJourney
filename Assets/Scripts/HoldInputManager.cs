@@ -38,7 +38,7 @@ public class HoldInputManager : MonoBehaviour
         GameObject nearestHoldNote = FindNearestHoldNote(lane);
         if (nearestHoldNote == null)
         {
-            Debug.Log($"❌ 没找到 {lane} 轨道上可以按的HoldNote！");
+            Debug.Log($" 没找到 {lane} 轨道上可以按的HoldNote！");
             return;
         }
 
