@@ -1,59 +1,139 @@
+using System.Collections;
 using UnityEngine;
 
 public class HoldNote : MonoBehaviour
 {
     public float moveSpeed;
-    public int lane;
-    private bool judged = false;
+    public int lane;  // 当前轨道
 
     private static float judgementLineX = 2.932941f;
-    private static float perfectWindow = 0.05f;
-    private static float goodWindow = 0.15f;
+    [SerializeField]
+    private float hitWindow = 0.5f;
+
+    private SpriteRenderer backgroundRenderer;
+    private SpriteRenderer foregroundRenderer;
+    private float missTimer = 0f;
+    private bool scheduledDestroy = false;
+
+    private bool isHolding = false;
+    private bool startedJudging = false;
+    private bool missed = false;
+
+    private Vector3 originalBackgroundScale;
+    private float holdTotalWidth;
+
+    void Start()
+    {
+        backgroundRenderer = transform.Find("Background").GetComponent<SpriteRenderer>();
+        foregroundRenderer = transform.Find("Foreground").GetComponent<SpriteRenderer>();
+
+        if (backgroundRenderer == null || foregroundRenderer == null)
+        {
+            Debug.LogError("HoldNote: 找不到 background 或 foreground！");
+        }
+
+        originalBackgroundScale = backgroundRenderer.transform.localScale;
+        holdTotalWidth = backgroundRenderer.bounds.size.x;
+    }
 
     void Update()
     {
         transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
 
-        if (!judged && transform.position.x > judgementLineX + goodWindow)
+        if (!startedJudging)
         {
-            Miss();
+            float distance = transform.position.x + holdTotalWidth / 2 - judgementLineX;
+            if (Mathf.Abs(distance) <= hitWindow)
+            {
+                startedJudging = true;
+            }
+        }
+
+        if (startedJudging && !missed)
+        {
+            if (!isHolding)
+            {
+                Miss();
+            }
+        }
+
+        if (missed)
+        {
+            missTimer += Time.deltaTime;
+            if (missTimer >= 2f && !scheduledDestroy)
+            {
+                Destroy(gameObject);
+                scheduledDestroy = true;
+            }
         }
     }
 
-    public void TryJudge()
+    public void OnHold(int inputLane)
     {
-        if (judged) return;
+        if (!startedJudging) return;
+        if (missed) return;
+        if (inputLane != lane) return;
 
-        float distance = Mathf.Abs(transform.position.x - judgementLineX);
+        isHolding = true;
 
-        if (distance <= perfectWindow)
+        float rightEdge = transform.position.x + holdTotalWidth / 2;
+        if (rightEdge <= judgementLineX)
         {
-            Debug.Log("Perfect Hold!");
-            ScoreManager.Instance.AddScore(500);
-            judged = true;
-            Destroy(gameObject);
-        }
-        else if (distance <= goodWindow)
-        {
-            Debug.Log("Good Hold!");
-            ScoreManager.Instance.AddScore(200);
-            judged = true;
-            Destroy(gameObject);
+            CompleteHold();
         }
         else
         {
-            Miss();
+            float cutRatio = (rightEdge - judgementLineX) / holdTotalWidth;
+            if (cutRatio < 0) cutRatio = 0;
+
+            backgroundRenderer.transform.localScale = new Vector3(originalBackgroundScale.x * cutRatio, originalBackgroundScale.y, originalBackgroundScale.z);
         }
+    }
+
+    public void OnRelease(int inputLane)
+    {
+        if (!startedJudging) return;
+        if (missed) return;
+        if (inputLane != lane) return;
+
+        isHolding = false;
+    }
+
+    private void CompleteHold()
+    {
+        if (missed) return;
+
+        startedJudging = false;
+        isHolding = false;
+
+        backgroundRenderer.color = new Color(1f, 1f, 1f, 0f);
+        foregroundRenderer.color = new Color(1f, 1f, 1f, 0f);
+
+        ScoreManager.Instance.AddScore(3000);
+
+        StartCoroutine(HitSequence());
     }
 
     private void Miss()
     {
-        if (!judged)
+        missed = true;
+        isHolding = false;
+
+        if (backgroundRenderer != null)
         {
-            Debug.Log("Miss Hold");
-            ScoreManager.Instance.SubtractScore(200);
-            judged = true;
-            Destroy(gameObject);
+            backgroundRenderer.color = new Color(1f, 1f, 1f, 0.25f);
         }
+        if (foregroundRenderer != null)
+        {
+            foregroundRenderer.color = new Color(1f, 1f, 1f, 0.25f);
+        }
+
+        ScoreManager.Instance.SubtractScore(3000);
+    }
+
+    private IEnumerator HitSequence()
+    {
+        yield return new WaitForSeconds(0.15f);
+        Destroy(gameObject);
     }
 }
