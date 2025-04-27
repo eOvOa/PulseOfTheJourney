@@ -4,20 +4,20 @@ using UnityEngine;
 public class Note : MonoBehaviour
 {
     public float moveSpeed;
+    public int lane;
     private bool judged = false;
     private bool missed = false;
 
-    private static float judgementLineX = 2.932941f; 
-    [SerializeField]
-    private float hitWindow = 0.5f; // 容错窗口
+    private static float judgementLineX = 2.932941f;
+    private static float perfectWindow = 0.05f;
+    private static float goodWindow = 0.15f;
 
     private SpriteRenderer sr;
+    private Animator animator;
     private float missTimer = 0f;
     private bool scheduledDestroy = false;
 
     public Sprite emptySprite;
-    private Animator animator;
-
     private bool canBePressed = false;
 
     void Start()
@@ -34,12 +34,12 @@ public class Note : MonoBehaviour
         {
             float distance = Mathf.Abs(transform.position.x - judgementLineX);
 
-            if (distance <= hitWindow)
+            if (distance <= goodWindow)
             {
                 canBePressed = true;
             }
 
-            if (transform.position.x > judgementLineX + hitWindow)
+            if (transform.position.x > judgementLineX + goodWindow)
             {
                 if (!judged)
                 {
@@ -65,7 +65,20 @@ public class Note : MonoBehaviour
 
         if (canBePressed)
         {
-            Hit();
+            float distance = Mathf.Abs(transform.position.x - judgementLineX);
+
+            if (distance <= perfectWindow)
+            {
+                PerfectHit();
+            }
+            else if (distance <= goodWindow)
+            {
+                GoodHit();
+            }
+            else
+            {
+                Miss();
+            }
         }
         else
         {
@@ -73,7 +86,7 @@ public class Note : MonoBehaviour
         }
     }
 
-    private void Hit()
+    private void PerfectHit()
     {
         judged = true;
         canBePressed = false;
@@ -81,16 +94,20 @@ public class Note : MonoBehaviour
         sr.sprite = emptySprite; // 假装消失
         animator.Play("Hit");
 
-      
-        ScoreManager.Instance.AddScore(2000);
-
+        ScoreManager.Instance.AddScore(3000); // Perfect加更多
         StartCoroutine(HitSequence());
+    }
 
-        IEnumerator HitSequence()
-        {
-            yield return new WaitForSeconds(0.15f);
-            Destroy(gameObject);
-        }
+    private void GoodHit()
+    {
+        judged = true;
+        canBePressed = false;
+
+        sr.sprite = emptySprite;
+        animator.Play("Hit");
+
+        ScoreManager.Instance.AddScore(1500); // Good加少一点
+        StartCoroutine(HitSequence());
     }
 
     private void Miss()
@@ -104,7 +121,12 @@ public class Note : MonoBehaviour
             sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f); // 变灰
         }
 
-       
         ScoreManager.Instance.SubtractScore(2000);
+    }
+
+    private IEnumerator HitSequence()
+    {
+        yield return new WaitForSeconds(0.15f);
+        Destroy(gameObject);
     }
 }

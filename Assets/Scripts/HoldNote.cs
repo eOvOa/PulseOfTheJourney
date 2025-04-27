@@ -3,163 +3,57 @@ using UnityEngine;
 public class HoldNote : MonoBehaviour
 {
     public float moveSpeed;
+    public int lane;
+    private bool judged = false;
 
-    private SpriteRenderer backgroundRenderer;
-
-    private bool canBePressed = false;
-    private bool started = false;
-    private bool allowedRelease = false;
-    private bool isHolding = false;
-    private bool finished = false;
-    private bool missed = false;
-    private bool scheduledDestroy = false;
-
-    private float width;
-    private float originalWidth;
     private static float judgementLineX = 2.932941f;
-    [SerializeField]
-    private float hitWindow = 0.5f;
-
-    private float missTimer = 0f;
-
-    void Start()
-    {
-        Transform backgroundTransform = transform.Find("Background");
-        if (backgroundTransform != null)
-        {
-            backgroundRenderer = backgroundTransform.GetComponent<SpriteRenderer>();
-        }
-        else
-        {
-            Debug.LogError("Background not found under HoldNote prefab!");
-        }
-
-        width = backgroundRenderer.bounds.size.x;
-        originalWidth = width;
-    }
+    private static float perfectWindow = 0.05f;
+    private static float goodWindow = 0.15f;
 
     void Update()
     {
         transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
 
-        float rightEdge = transform.position.x + width / 2f;
-        float leftEdge = transform.position.x - width / 2f;
-
-        if (!canBePressed && rightEdge >= judgementLineX - hitWindow && rightEdge <= judgementLineX + hitWindow)
+        if (!judged && transform.position.x > judgementLineX + goodWindow)
         {
-            canBePressed = true;
+            Miss();
         }
+    }
 
-        if (canBePressed && rightEdge > judgementLineX + hitWindow)
-        {
-            if (!started)
-            {
-                Miss();
-            }
-            canBePressed = false;
-        }
+    public void TryJudge()
+    {
+        if (judged) return;
 
-        if (!allowedRelease && Mathf.Abs(leftEdge - judgementLineX) <= hitWindow)
-        {
-            allowedRelease = true;
-        }
+        float distance = Mathf.Abs(transform.position.x - judgementLineX);
 
-        if (isHolding && !finished)
+        if (distance <= perfectWindow)
         {
-            EatHold();
-        }
-
-        if (missed)
-        {
-            missTimer += Time.deltaTime;
-            if (missTimer >= 2f && !scheduledDestroy)
-            {
-                Destroy(gameObject);
-                scheduledDestroy = true;
-            }
-        }
-
-        if (transform.position.x > judgementLineX + 10f)
-        {
+            Debug.Log("Perfect Hold!");
+            ScoreManager.Instance.AddScore(500);
+            judged = true;
             Destroy(gameObject);
         }
-
-        //实时加分或者扣分
-        if (isHolding && !finished)
+        else if (distance <= goodWindow)
         {
-            int points = Mathf.RoundToInt(3 * Time.deltaTime * 1000);
-            ScoreManager.Instance.AddScore(points);
-        }
-        else if (missed && !finished) 
-        {
-            int points = Mathf.RoundToInt(1 * Time.deltaTime * 1000);
-            ScoreManager.Instance.SubtractScore(points);
-        }
-    }
-
-    public void PlayerPress()
-    {
-        if (missed || finished) return;
-
-        if (canBePressed)
-        {
-            started = true;
-            isHolding = true;
-        }
-    }
-
-    public void PlayerRelease()
-    {
-        if (missed || finished) return;
-
-        if (allowedRelease)
-        {
-            FinishHold();
+            Debug.Log("Good Hold!");
+            ScoreManager.Instance.AddScore(200);
+            judged = true;
+            Destroy(gameObject);
         }
         else
         {
-            EarlyRelease();
+            Miss();
         }
-    }
-
-    private void EatHold()
-    {
-        float eatAmount = moveSpeed * Time.deltaTime;
-
-        width -= eatAmount;
-        if (width < 0) width = 0;
-
-        transform.localScale = new Vector3(width / originalWidth, transform.localScale.y, transform.localScale.z);
-        transform.position -= new Vector3(eatAmount / 2f, 0, 0);
     }
 
     private void Miss()
     {
-        missed = true;
-        if (backgroundRenderer != null)
+        if (!judged)
         {
-            backgroundRenderer.color = new Color(0.5f, 0.5f, 0.5f, 0.25f);
+            Debug.Log("Miss Hold");
+            ScoreManager.Instance.SubtractScore(200);
+            judged = true;
+            Destroy(gameObject);
         }
-    }
-
-    private void EarlyRelease()
-    {
-        if (backgroundRenderer != null)
-        {
-            backgroundRenderer.color = new Color(0.5f, 0.5f, 0.5f, 0.25f);
-        }
-        isHolding = false;
-        missed = true; 
-    }
-
-    private void FinishHold()
-    {
-        finished = true;
-        Destroy(gameObject, 0.2f);
-    }
-
-    public bool CanBePressed()
-    {
-        return canBePressed;
     }
 }

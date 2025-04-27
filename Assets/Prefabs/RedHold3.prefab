@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -2676657107227262851}
   m_Layer: 0
   m_Name: RedHold3
-  m_TagString: Untagged
+  m_TagString: HoldNote
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,6 +95,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 0
+  lane: 0
+  emptySprite: {fileID: 0}
 --- !u!114 &-2676657107227262851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108,7 +110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 0
-  hitWindow: 0.5
+  lane: 0
 --- !u!1 &8459913200504043585
 GameObject:
   m_ObjectHideFlags: 0

@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 4041331374223189725}
   m_Layer: 0
   m_Name: BlueHold1
-  m_TagString: Untagged
+  m_TagString: HoldNote
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -181,8 +181,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4eeec915c87ed492ea22195af45bb1ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetTime: 0
   moveSpeed: 3
+  lane: 0
+  emptySprite: {fileID: 0}
 --- !u!114 &4041331374223189725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,7 +197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
-  holdDuration: 1
+  lane: 0
 --- !u!1 &7989264762531492807
 GameObject:
   m_ObjectHideFlags: 0

@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 2591402393653527349}
   m_Layer: 0
   m_Name: WhiteHold4
-  m_TagString: Untagged
+  m_TagString: HoldNote
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -182,6 +182,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 0
+  lane: 0
+  emptySprite: {fileID: 0}
 --- !u!114 &2591402393653527349
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,7 +197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 0
-  hitWindow: 0.5
+  lane: 0
 --- !u!1 &7861562678955193378
 GameObject:
   m_ObjectHideFlags: 0

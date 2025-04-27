@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6931533124889763069}
   m_Layer: 0
   m_Name: GreenHold2
-  m_TagString: Untagged
+  m_TagString: HoldNote
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,6 +95,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 3
+  lane: 0
+  emptySprite: {fileID: 0}
 --- !u!114 &6931533124889763069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108,7 +110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 0
-  hitWindow: 0.5
+  lane: 0
 --- !u!1 &2964974368766437107
 GameObject:
   m_ObjectHideFlags: 0

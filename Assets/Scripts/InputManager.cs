@@ -2,28 +2,20 @@ using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
-    public NoteSpawner noteSpawner;
+    [SerializeField] private JudgementLine judgementLine;
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.A))
-            TryJudgeNote(0); // 红轨
+            judgementLine.TryJudge(0); // 红
+
         if (Input.GetKeyDown(KeyCode.S))
-            TryJudgeNote(1); // 蓝轨
-        if (Input.GetKeyDown(KeyCode.W))
-            TryJudgeNote(2); // 白轨
+            judgementLine.TryJudge(1); // 蓝
+
+        if (Input.GetKeyDown(KeyCode.D))
+            judgementLine.TryJudge(2); // 白
+
         if (Input.GetKeyDown(KeyCode.F))
-            TryJudgeNote(3); // 绿轨
-    }
-
-    private void TryJudgeNote(int lane)
-    {
-        GameObject noteObj = noteSpawner.GetCurrentNote(lane);
-        if (noteObj == null) return;
-
-        Note note = noteObj.GetComponent<Note>();
-        note.TryJudge();
-
-        noteSpawner.ClearNote(lane);
+            judgementLine.TryJudge(3); // 绿
     }
 }

@@ -1,30 +1,23 @@
-using TMPro;
 using UnityEngine;
+using TMPro; // ✅ 记得改用 TextMeshPro命名空间
 
 public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance;
 
     public int score = 0;
-    public TextMeshProUGUI scoreText; 
+    public TextMeshProUGUI scoreText; // ✅ 用TextMeshProUGUI替代老的Text
 
-    void Awake()
+    private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        Instance = this;
     }
 
-    void Update()
+    private void Update()
     {
         if (scoreText != null)
         {
-            scoreText.text = score.ToString(); 
+            scoreText.text = score.ToString();
         }
     }
 
