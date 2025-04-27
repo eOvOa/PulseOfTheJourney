@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Note : MonoBehaviour
@@ -13,20 +14,26 @@ public class Note : MonoBehaviour
     private float missTimer = 0f;
     private bool scheduledDestroy = false;
 
+    public Sprite emptySprite; 
+    private Animator animator;
+
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     void Update()
     {
        
-        transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
+        //transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
 
-        if (!judged)
+        if (!judged || missed)
         {
+            // move this line so the key stops at wherr you hit it and plays Hit animation
+            transform.Translate(Vector3.right * moveSpeed * Time.deltaTime); 
         
-            if (transform.position.x > judgementLineX + 2f)
+            if (transform.position.x > judgementLineX) // Immediately change key transparency if passed the judgement line (+2f removed)
             {
                 Miss();
             }
@@ -61,7 +68,16 @@ public class Note : MonoBehaviour
     private void Hit()
     {
         judged = true;
-        Destroy(gameObject);
+        sr.sprite = emptySprite; // Fake key disappear
+        animator.Play("Hit");
+
+        StartCoroutine(HitSequence());
+
+        IEnumerator HitSequence() // Destroy game object after the animation played
+        {
+            yield return new WaitForSeconds(0.15f);
+            Destroy(gameObject);
+        }
     }
 
     private void Miss()

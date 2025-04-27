@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2921419117232527905}
   - component: {fileID: -561379762244833914}
   - component: {fileID: -308554794265976701}
+  - component: {fileID: 5864126285872418483}
   m_Layer: 0
   m_Name: GreenTap
   m_TagString: Untagged
@@ -147,5 +148,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4eeec915c87ed492ea22195af45bb1ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetTime: 0
   moveSpeed: 0
+  emptySprite: {fileID: -8527568592950175283, guid: a83676b0f6e7b46eb846b12a3652372e, type: 3}
+--- !u!95 &5864126285872418483
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1865605494287765139}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 900dc3b2458294f9e9b65f3876722a67, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
