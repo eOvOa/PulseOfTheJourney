@@ -1,8 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-// 单个Note数据结构
 [System.Serializable]
 public class NoteData
 {
@@ -12,7 +12,6 @@ public class NoteData
     public int holdLength;
 }
 
-// Json数组包装
 [System.Serializable]
 public class NoteDataList
 {
@@ -25,9 +24,10 @@ public class BeatmapLoader : MonoBehaviour
 
     public List<NoteData> notes = new List<NoteData>();
     public AudioSource audioSource;
-    public float approachTime = 3f;
     public bool musicStarted = false;
-    public float manualDelay = 1.785f; // 延迟播放秒数
+
+    public float approachTime = 2f; // 你设定的approach time（比如2秒）
+    private float musicDelay = 0f;   // 自动计算得到的延迟时间
 
     private void Awake()
     {
@@ -43,21 +43,25 @@ public class BeatmapLoader : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        if (audioSource == null)
+        {
+            audioSource = GameObject.Find("AudioSource").GetComponent<AudioSource>();
+        }
+
+        CalculateMusicDelay();
+        StartCoroutine(DelayedMusicStart());
+    }
+
     private void LoadBeatmap()
     {
         string path = Path.Combine(Application.streamingAssetsPath, "beatmap.json");
 
         if (File.Exists(path))
         {
-            string rawJson = File.ReadAllText(path).Trim();
-
-            // 检查是否是裸数组 []
-            if (rawJson.StartsWith("["))
-            {
-                rawJson = "{\"list\":" + rawJson + "}";
-            }
-
-            notes = ParseJson(rawJson);
+            string jsonContent = File.ReadAllText(path);
+            notes = ParseJson(jsonContent);
             Debug.Log($"✅ Loaded {notes.Count} notes from beatmap.json");
         }
         else
@@ -68,27 +72,38 @@ public class BeatmapLoader : MonoBehaviour
 
     private List<NoteData> ParseJson(string json)
     {
-        NoteDataList dataList = JsonUtility.FromJson<NoteDataList>(json);
+        string wrappedJson = "{\"list\":" + json + "}";
+        NoteDataList dataList = JsonUtility.FromJson<NoteDataList>(wrappedJson);
         return dataList.list;
     }
 
-    private void Start()
+    private void CalculateMusicDelay()
     {
         if (notes.Count == 0)
         {
-            Debug.LogError("❌ No notes loaded!");
+            Debug.LogWarning("⚠️ No notes loaded, skipping music delay calculation.");
+            musicDelay = 0f;
             return;
         }
 
-        StartCoroutine(DelayedMusicStart());
+        float firstNoteTime = notes[0].time;
+        musicDelay = firstNoteTime - approachTime;
+
+        if (musicDelay < 0f)
+        {
+            Debug.LogWarning($"⚠️ First note is too early! Setting musicDelay = 0");
+            musicDelay = 0f;
+        }
+
+        Debug.Log($"🎵 Auto-calculated music delay: {musicDelay:F3} seconds (First note at {firstNoteTime:F3}s, ApproachTime {approachTime}s)");
     }
 
-    private System.Collections.IEnumerator DelayedMusicStart()
+    private IEnumerator DelayedMusicStart()
     {
-        yield return new WaitForSeconds(manualDelay);
+        yield return new WaitForSeconds(musicDelay);
 
         audioSource.Play();
         musicStarted = true;
-        Debug.Log("🎵 Music started after delay: " + manualDelay + "s");
+        Debug.Log("🎵 Music started after delay: " + musicDelay.ToString("F3") + "s");
     }
 }

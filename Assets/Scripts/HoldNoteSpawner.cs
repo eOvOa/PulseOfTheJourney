@@ -12,8 +12,6 @@ public class HoldNoteSpawner : MonoBehaviour
     private int noteIndex = 0;
     private List<GameObject>[] activeHoldNotes = new List<GameObject>[4];
 
-    //private float judgementLineX = 2.932941f;
-
     void Start()
     {
         if (audioSource == null)
@@ -74,7 +72,6 @@ public class HoldNoteSpawner : MonoBehaviour
             activeHoldNotes[lane].Add(holdNoteObj);
         }
     }
-
 
     public List<GameObject> GetActiveHoldNotes(int lane)
     {

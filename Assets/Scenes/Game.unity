@@ -211,8 +211,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f1c62976c6f948979bb0395378996f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  notesInRange: []
-  holdNotesInRange: []
 --- !u!1 &204969015
 GameObject:
   m_ObjectHideFlags: 0
@@ -1052,9 +1050,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   notes: []
   audioSource: {fileID: 805849257}
-  approachTime: 1.5
+  approachTime: 2
   musicStarted: 0
-  manualDelay: 1.785
+  manualDelay: 0.747
 --- !u!4 &1451853818
 Transform:
   m_ObjectHideFlags: 0

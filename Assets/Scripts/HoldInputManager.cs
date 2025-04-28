@@ -6,7 +6,6 @@ public class HoldInputManager : MonoBehaviour
     public HoldNoteSpawner holdNoteSpawner;
 
     private KeyCode[] laneKeys = { KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F };
-
     private bool[] holdingKeys = new bool[4];
 
     void Update()

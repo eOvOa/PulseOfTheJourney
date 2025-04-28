@@ -4,7 +4,7 @@ using UnityEngine;
 public class HoldNote : MonoBehaviour
 {
     public float moveSpeed;
-    public int lane;  // 当前轨道
+    public int lane;
 
     private static float judgementLineX = 2.932941f;
     [SerializeField]
@@ -29,7 +29,7 @@ public class HoldNote : MonoBehaviour
 
         if (backgroundRenderer == null || foregroundRenderer == null)
         {
-            Debug.LogError("HoldNote: 找不到 background 或 foreground！");
+            Debug.LogError("HoldNote: 找不到 Background 或 Foreground！");
         }
 
         originalBackgroundScale = backgroundRenderer.transform.localScale;
@@ -42,8 +42,10 @@ public class HoldNote : MonoBehaviour
 
         if (!startedJudging)
         {
-            float distance = transform.position.x + holdTotalWidth / 2 - judgementLineX;
-            if (Mathf.Abs(distance) <= hitWindow)
+            float rightEdge = transform.position.x + holdTotalWidth / 2;
+            float distance = Mathf.Abs(rightEdge - judgementLineX);
+
+            if (distance <= hitWindow)
             {
                 startedJudging = true;
             }

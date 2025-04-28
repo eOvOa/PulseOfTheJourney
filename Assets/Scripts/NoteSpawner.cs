@@ -10,7 +10,7 @@ public class NoteSpawner : MonoBehaviour
 
     private List<NoteData> tapNotes = new List<NoteData>();
     private int noteIndex = 0;
-    private GameObject[] currentNotes = new GameObject[4];
+    private List<GameObject>[] currentNotes = new List<GameObject>[4];
 
     private float judgementLineX = 2.932941f;
 
@@ -23,7 +23,7 @@ public class NoteSpawner : MonoBehaviour
 
         for (int i = 0; i < 4; i++)
         {
-            currentNotes[i] = null;
+            currentNotes[i] = new List<GameObject>();
         }
 
         if (BeatmapLoader.Instance != null)
@@ -63,17 +63,21 @@ public class NoteSpawner : MonoBehaviour
         GameObject note = Instantiate(notePrefabs[lane], spawnPoints[lane].position, Quaternion.identity);
         Note noteScript = note.GetComponent<Note>();
         noteScript.moveSpeed = (judgementLineX - startX) / BeatmapLoader.Instance.approachTime;
+        noteScript.lane = lane;
 
-        currentNotes[lane] = note;
+        currentNotes[lane].Add(note);
     }
 
-    public GameObject GetCurrentNote(int lane)
+    public List<GameObject> GetActiveTapNotes(int lane)
     {
         return currentNotes[lane];
     }
 
-    public void ClearNote(int lane)
+    public void RemoveTapNote(int lane, GameObject note)
     {
-        currentNotes[lane] = null;
+        if (currentNotes[lane].Contains(note))
+        {
+            currentNotes[lane].Remove(note);
+        }
     }
 }
