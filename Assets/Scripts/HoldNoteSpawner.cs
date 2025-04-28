@@ -15,9 +15,7 @@ public class HoldNoteSpawner : MonoBehaviour
     void Start()
     {
         if (audioSource == null)
-        {
             audioSource = GameObject.Find("AudioSource").GetComponent<AudioSource>();
-        }
 
         for (int i = 0; i < 4; i++)
         {
@@ -57,7 +55,6 @@ public class HoldNoteSpawner : MonoBehaviour
     {
         int lane = noteData.lane;
         int holdLength = noteData.holdLength;
-
         int prefabIndex = lane * 4 + (holdLength - 1);
 
         if (prefabIndex >= 0 && prefabIndex < holdPrefabs.Length)
@@ -66,8 +63,8 @@ public class HoldNoteSpawner : MonoBehaviour
             GameObject holdNoteObj = Instantiate(prefab, spawnPoints[lane].position, Quaternion.identity);
 
             HoldNote holdNote = holdNoteObj.GetComponent<HoldNote>();
-            holdNote.moveSpeed = (2.932941f - startX) / BeatmapLoader.Instance.approachTime;
-            holdNote.lane = lane; 
+            holdNote.moveSpeed = (2.932941f - startX) / (BeatmapLoader.Instance.approachTime * 1.15f);//holdnote移动速度微调在这
+
 
             activeHoldNotes[lane].Add(holdNoteObj);
         }

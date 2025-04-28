@@ -44,7 +44,7 @@ public class InputManager : MonoBehaviour
         if (bestNote != null)
         {
             bestNote.TryJudge();
-            noteSpawner.RemoveTapNote(lane, bestNote.gameObject); // 判定后移除
+            noteSpawner.RemoveTapNote(lane, bestNote.gameObject); 
         }
     }
 }

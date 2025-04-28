@@ -1,26 +1,30 @@
-using System.Collections;
 using UnityEngine;
 
 public class HoldNote : MonoBehaviour
 {
     public float moveSpeed;
-    public int lane;
 
+    private SpriteRenderer backgroundRenderer;
+    private SpriteRenderer foregroundRenderer;
+
+    private bool canBePressed = false;
+    private bool started = false;
+    private bool allowedRelease = false;
+    private bool isHolding = false;
+    private bool finished = false;
+    private bool missed = false;
+    private bool scheduledDestroy = false;
+    private bool scoringActive = false;
+    private bool hasHeldSuccessfully = false;
+
+    private float width;
+    private float originalWidth;
     private static float judgementLineX = 2.932941f;
     [SerializeField]
     private float hitWindow = 0.5f;
 
-    private SpriteRenderer backgroundRenderer;
-    private SpriteRenderer foregroundRenderer;
     private float missTimer = 0f;
-    private bool scheduledDestroy = false;
-
-    private bool isHolding = false;
-    private bool startedJudging = false;
-    private bool missed = false;
-
-    private Vector3 originalBackgroundScale;
-    private float holdTotalWidth;
+    private float scoreTimer = 0f;
 
     void Start()
     {
@@ -32,31 +36,44 @@ public class HoldNote : MonoBehaviour
             Debug.LogError("HoldNote: 找不到 Background 或 Foreground！");
         }
 
-        originalBackgroundScale = backgroundRenderer.transform.localScale;
-        holdTotalWidth = backgroundRenderer.bounds.size.x;
+        width = backgroundRenderer.bounds.size.x;
+        originalWidth = width;
     }
 
     void Update()
     {
         transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
 
-        if (!startedJudging)
-        {
-            float rightEdge = transform.position.x + holdTotalWidth / 2;
-            float distance = Mathf.Abs(rightEdge - judgementLineX);
+        float rightEdge = transform.position.x + width / 2f;
+        float leftEdge = transform.position.x - width / 2f;
 
-            if (distance <= hitWindow)
-            {
-                startedJudging = true;
-            }
+        if (!canBePressed && rightEdge >= judgementLineX - hitWindow && rightEdge <= judgementLineX + hitWindow)
+        {
+            canBePressed = true;
         }
 
-        if (startedJudging && !missed)
+        if (canBePressed && rightEdge > judgementLineX + hitWindow)
         {
-            if (!isHolding)
+            if (!started)
             {
                 Miss();
             }
+            canBePressed = false;
+        }
+
+        if (!allowedRelease && Mathf.Abs(leftEdge - judgementLineX) <= hitWindow)
+        {
+            allowedRelease = true;
+        }
+
+        if (!finished && !missed && scoringActive)
+        {
+            HandleScoreDuringHold();
+        }
+
+        if (isHolding && !finished)
+        {
+            EatHold();
         }
 
         if (missed)
@@ -68,74 +85,111 @@ public class HoldNote : MonoBehaviour
                 scheduledDestroy = true;
             }
         }
+
+        if (transform.position.x > judgementLineX + 10f)
+        {
+            scoringActive = false;
+            Destroy(gameObject);
+        }
     }
 
-    public void OnHold(int inputLane)
+    public void PlayerPress()
     {
-        if (!startedJudging) return;
-        if (missed) return;
-        if (inputLane != lane) return;
+        if (missed || finished) return;
 
-        isHolding = true;
-
-        float rightEdge = transform.position.x + holdTotalWidth / 2;
-        if (rightEdge <= judgementLineX)
+        if (canBePressed)
         {
-            CompleteHold();
+            started = true;
+            isHolding = true;
+            scoringActive = true;
+            hasHeldSuccessfully = true;
+        }
+    }
+
+    public void PlayerRelease()
+    {
+        if (missed || finished) return;
+
+        if (allowedRelease)
+        {
+            FinishHold();
         }
         else
         {
-            float cutRatio = (rightEdge - judgementLineX) / holdTotalWidth;
-            if (cutRatio < 0) cutRatio = 0;
-
-            backgroundRenderer.transform.localScale = new Vector3(originalBackgroundScale.x * cutRatio, originalBackgroundScale.y, originalBackgroundScale.z);
+            EarlyRelease();
         }
     }
 
-    public void OnRelease(int inputLane)
+    private void EatHold()
     {
-        if (!startedJudging) return;
-        if (missed) return;
-        if (inputLane != lane) return;
+        float eatAmount = moveSpeed * Time.deltaTime;
 
-        isHolding = false;
-    }
+        width -= eatAmount;
+        if (width < 0) width = 0;
 
-    private void CompleteHold()
-    {
-        if (missed) return;
-
-        startedJudging = false;
-        isHolding = false;
-
-        backgroundRenderer.color = new Color(1f, 1f, 1f, 0f);
-        foregroundRenderer.color = new Color(1f, 1f, 1f, 0f);
-
-        ScoreManager.Instance.AddScore(3000);
-
-        StartCoroutine(HitSequence());
+        transform.localScale = new Vector3(width / originalWidth, transform.localScale.y, transform.localScale.z);
+        transform.position -= new Vector3(eatAmount / 2f, 0);
     }
 
     private void Miss()
     {
         missed = true;
+        scoringActive = false;
+
+        if (backgroundRenderer != null)
+        {
+            backgroundRenderer.color = new Color(backgroundRenderer.color.r, backgroundRenderer.color.g, backgroundRenderer.color.b, 0.25f);
+        }
+        if (foregroundRenderer != null)
+        {
+            foregroundRenderer.color = new Color(foregroundRenderer.color.r, foregroundRenderer.color.g, foregroundRenderer.color.b, 0.25f);
+        }
+
+        if (!hasHeldSuccessfully)
+        {
+            ScoreManager.Instance.SubtractScore(3000);
+        }
+    }
+
+    private void EarlyRelease()
+    {
+        scoringActive = false;
         isHolding = false;
 
         if (backgroundRenderer != null)
         {
-            backgroundRenderer.color = new Color(1f, 1f, 1f, 0.25f);
+            backgroundRenderer.color = new Color(backgroundRenderer.color.r, backgroundRenderer.color.g, backgroundRenderer.color.b, 0.25f);
         }
         if (foregroundRenderer != null)
         {
-            foregroundRenderer.color = new Color(1f, 1f, 1f, 0.25f);
+            foregroundRenderer.color = new Color(foregroundRenderer.color.r, foregroundRenderer.color.g, foregroundRenderer.color.b, 0.25f);
         }
-
-        ScoreManager.Instance.SubtractScore(3000);
     }
 
-    private IEnumerator HitSequence()
+    private void FinishHold()
     {
-        yield return new WaitForSeconds(0.15f);
-        Destroy(gameObject);
+        finished = true;
+        scoringActive = false;
+        isHolding = false;
+        Destroy(gameObject, 0.2f);
+    }
+
+    private void HandleScoreDuringHold()
+    {
+        scoreTimer += Time.deltaTime;
+
+        if (scoreTimer >= 0.001f)
+        {
+            if (isHolding)
+            {
+                ScoreManager.Instance.AddScore(1);
+            }
+            scoreTimer = 0f;
+        }
+    }
+
+    public bool CanBePressed()
+    {
+        return canBePressed;
     }
 }

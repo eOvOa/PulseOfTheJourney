@@ -926,7 +926,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3924d42bb5126434d95fe654dafdf0b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  holdNoteSpawner: {fileID: 699063626}
+  holdSpawner: {fileID: 699063626}
 --- !u!4 &1028699205
 Transform:
   m_ObjectHideFlags: 0
@@ -1050,9 +1050,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   notes: []
   audioSource: {fileID: 805849257}
-  approachTime: 2
   musicStarted: 0
-  manualDelay: 0.747
+  approachTime: 2
 --- !u!4 &1451853818
 Transform:
   m_ObjectHideFlags: 0

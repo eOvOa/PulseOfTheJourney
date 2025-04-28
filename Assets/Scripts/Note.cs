@@ -9,8 +9,9 @@ public class Note : MonoBehaviour
     private bool missed = false;
 
     private static float judgementLineX = 2.932941f;
-    private static float perfectWindow = 0.05f;
-    private static float goodWindow = 0.15f;
+    private static float perfectWindow = 0.15f;   //判定容错调整在这
+    private static float goodWindow = 0.3f;     
+
 
     private SpriteRenderer sr;
     private Animator animator;
