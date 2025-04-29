@@ -17,7 +17,7 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoreText != null)
         {
-            scoreText.text = score.ToString();
+            scoreText.text = $"SCORE: {score}";
         }
     }
 
