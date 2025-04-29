@@ -52,5 +52,8 @@ TagManager:
   - name: NoteEffect
     uniqueID: 3317209103
     locked: 0
+  - name: Character
+    uniqueID: 4071432437
+    locked: 0
   m_RenderingLayers:
   - Default
