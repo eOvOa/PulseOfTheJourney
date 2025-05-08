@@ -23,7 +23,7 @@ public class Note : MonoBehaviour
     public Sprite emptySprite;
     private bool canBePressed = false;
     
-    // 缓存引用，避免重复查找
+    // Cache references to avoid repeated lookups
     private NoteSpawner spawner;
 
     void Start()
@@ -31,23 +31,27 @@ public class Note : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         
-        // 只在Start中查找一次
+        // Only look up once in Start
         spawner = Object.FindFirstObjectByType<NoteSpawner>();
     }
 
     void Update()
     {
+        // Move note rightward (toward judgment line)
         transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
 
         if (!judged)
         {
             float distance = Mathf.Abs(transform.position.x - judgementLineX);
             
+            // Enable pressing when note is within good window
             if (distance <= goodWindow)
             {
                 canBePressed = true;
             }
             
+            // Auto-miss if note passes beyond judgment line + good window
+            // FIX: Only miss if the note is PAST the judgment line
             if (!autoMissed && transform.position.x > judgementLineX + goodWindow)
             {
                 autoMissed = true;
@@ -55,6 +59,7 @@ public class Note : MonoBehaviour
             }
         }
         
+        // Destroy missed notes after timer
         if (missed)
         {
             missTimer += Time.deltaTime;
@@ -88,7 +93,12 @@ public class Note : MonoBehaviour
         }
         else
         {
-            Miss();
+            // FIX: Don't automatically miss if the note hasn't reached the judgment area yet
+            // Only miss if it's past the judgment line
+            if (transform.position.x > judgementLineX)
+            {
+                Miss();
+            }
         }
     }
 
