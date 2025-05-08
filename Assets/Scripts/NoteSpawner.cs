@@ -13,6 +13,7 @@ public class NoteSpawner : MonoBehaviour
     private List<GameObject>[] currentNotes = new List<GameObject>[4];
 
     private float judgementLineX = 2.932941f;
+    private float goodWindowValue = 0.3f;
 
     void Start()
     {
@@ -53,6 +54,12 @@ public class NoteSpawner : MonoBehaviour
                 noteIndex++;
             }
         }
+        
+        // Clean up any destroyed notes that might still be in our lists
+        for (int i = 0; i < 4; i++)
+        {
+            currentNotes[i].RemoveAll(note => note == null);
+        }
     }
 
     private void SpawnNote(NoteData noteData)
@@ -70,14 +77,54 @@ public class NoteSpawner : MonoBehaviour
 
     public List<GameObject> GetActiveTapNotes(int lane)
     {
+        if (lane < 0 || lane >= currentNotes.Length)
+            return new List<GameObject>();
+            
+      
+        currentNotes[lane].RemoveAll(note => note == null);
+        
         return currentNotes[lane];
     }
 
     public void RemoveTapNote(int lane, GameObject note)
     {
-        if (currentNotes[lane].Contains(note))
+        if (lane >= 0 && lane < currentNotes.Length && currentNotes[lane].Contains(note))
         {
             currentNotes[lane].Remove(note);
         }
+    }
+    
+    public GameObject GetClosestNoteInLane(int lane)
+    {
+        if (lane < 0 || lane >= currentNotes.Length)
+            return null;
+            
+
+        List<GameObject> notes = GetActiveTapNotes(lane);
+        
+        if (notes.Count == 0)
+            return null;
+            
+        GameObject closest = null;
+        float closestDist = float.MaxValue;
+        
+        foreach (var note in notes)
+        {
+            if (note == null) continue;
+            
+            Note noteScript = note.GetComponent<Note>();
+            
+   
+            if (noteScript == null || noteScript.IsJudged) continue;
+            
+            float dist = Mathf.Abs(note.transform.position.x - judgementLineX);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closest = note;
+            }
+        }
+        
+        return closest;
     }
 }

@@ -20,31 +20,17 @@ public class InputManager : MonoBehaviour
 
     private void TryJudgeTap(int lane)
     {
-        List<GameObject> notes = noteSpawner.GetActiveTapNotes(lane);
-        if (notes == null || notes.Count == 0) return;
-
-        float bestDistance = float.MaxValue;
-        Note bestNote = null;
-
-        foreach (var obj in notes)
+        // Get the closest note in this lane that hasn't been judged yet
+        GameObject closestNoteObj = noteSpawner.GetClosestNoteInLane(lane);
+        
+        if (closestNoteObj != null)
         {
-            if (obj == null) continue;
-
-            Note note = obj.GetComponent<Note>();
-            if (note == null) continue;
-
-            float distance = Mathf.Abs(note.transform.position.x - 2.932941f);
-            if (distance < bestDistance)
+            Note closestNote = closestNoteObj.GetComponent<Note>();
+            if (closestNote != null && !closestNote.IsJudged)
             {
-                bestDistance = distance;
-                bestNote = note;
+                // Let this note judge itself independently
+                closestNote.TryJudge();
             }
-        }
-
-        if (bestNote != null)
-        {
-            bestNote.TryJudge();
-            noteSpawner.RemoveTapNote(lane, bestNote.gameObject); 
         }
     }
 }

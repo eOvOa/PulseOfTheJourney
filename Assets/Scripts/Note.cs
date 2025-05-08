@@ -9,9 +9,8 @@ public class Note : MonoBehaviour
     private bool missed = false;
 
     private static float judgementLineX = 2.932941f;
-    private static float perfectWindow = 0.15f;   //判定容错调整在这
+    private static float perfectWindow = 0.15f;  
     private static float goodWindow = 0.3f;     
-
 
     private SpriteRenderer sr;
     private Animator animator;
@@ -20,6 +19,9 @@ public class Note : MonoBehaviour
 
     public Sprite emptySprite;
     private bool canBePressed = false;
+    
+
+    public bool IsJudged { get { return judged; } }
 
     void Start()
     {
@@ -54,8 +56,8 @@ public class Note : MonoBehaviour
             missTimer += Time.deltaTime;
             if (missTimer >= 2f && !scheduledDestroy)
             {
-                Destroy(gameObject);
                 scheduledDestroy = true;
+                Destroy(gameObject);
             }
         }
     }
@@ -92,10 +94,18 @@ public class Note : MonoBehaviour
         judged = true;
         canBePressed = false;
 
-        sr.sprite = emptySprite; // 假装消失
+        sr.sprite = emptySprite; 
         animator.Play("Hit");
 
-        ScoreManager.Instance.AddScore(3000); // Perfect加更多
+        ScoreManager.Instance.AddScore(3000); 
+        
+       
+        NoteSpawner spawner = Object.FindFirstObjectByType<NoteSpawner>();
+        if (spawner != null)
+        {
+            spawner.RemoveTapNote(lane, gameObject);
+        }
+        
         StartCoroutine(HitSequence());
     }
 
@@ -107,7 +117,15 @@ public class Note : MonoBehaviour
         sr.sprite = emptySprite;
         animator.Play("Hit");
 
-        ScoreManager.Instance.AddScore(1500); // Good加少一点
+        ScoreManager.Instance.AddScore(1500); 
+        
+       
+        NoteSpawner spawner = Object.FindFirstObjectByType<NoteSpawner>();
+        if (spawner != null)
+        {
+            spawner.RemoveTapNote(lane, gameObject);
+        }
+        
         StartCoroutine(HitSequence());
     }
 
@@ -119,10 +137,17 @@ public class Note : MonoBehaviour
 
         if (sr != null)
         {
-            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f); // 变灰
+            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0.25f); 
         }
 
         ScoreManager.Instance.SubtractScore(2000);
+        
+
+        NoteSpawner spawner = Object.FindFirstObjectByType<NoteSpawner>();
+        if (spawner != null)
+        {
+            spawner.RemoveTapNote(lane, gameObject);
+        }
     }
 
     private IEnumerator HitSequence()
