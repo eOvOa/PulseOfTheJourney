@@ -200,7 +200,6 @@ MonoBehaviour:
   moveSpeed: 0
   hitWindow: 0.5
   holdFXPrefab: {fileID: 4231985461465050737, guid: 4cec955028f7e49d5a31ba76dd9d71ef, type: 3}
-  spawnedFX: {fileID: 0}
 --- !u!1 &7861562678955193378
 GameObject:
   m_ObjectHideFlags: 0

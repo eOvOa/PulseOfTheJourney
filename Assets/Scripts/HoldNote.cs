@@ -28,7 +28,7 @@ public class HoldNote : MonoBehaviour
     private float scoreTimer = 0f;
 
     public GameObject holdFXPrefab;
-    public GameObject spawnedFX;
+    private GameObject spawnedFX;
 
     void Start()
     {
@@ -95,6 +95,12 @@ public class HoldNote : MonoBehaviour
         {
             scoringActive = false;
             Destroy(gameObject);
+
+            if (spawnedFX != null)
+            {
+                Destroy(spawnedFX);
+                spawnedFX = null;
+            }
         }
     }
 
@@ -102,18 +108,23 @@ public class HoldNote : MonoBehaviour
     {
         if (missed || finished) return;
 
+        if (spawnedFX != null)
+        {
+            Destroy(spawnedFX);
+            spawnedFX = null;
+        }
+
+        // Instantiate hold animation effect at judgement line
+        Vector3 fxPosition = new Vector3(judgementLineX, transform.position.y, 0f);
+        spawnedFX = Instantiate(holdFXPrefab, fxPosition, Quaternion.identity);
+        Debug.Log("Hold Animation Playing");
+
         if (canBePressed)
         {
             started = true;
             isHolding = true;
             scoringActive = true;
             hasHeldSuccessfully = true;
-
-            // Instantiate hold animation effect at judgement line
-            Vector3 fxPosition = new Vector3(judgementLineX, transform.position.y, 0f);
-            spawnedFX = Instantiate(holdFXPrefab, fxPosition, Quaternion.identity);
-            Debug.Log("Hold Animation Playing");
-
             //animator.SetBool("IsHolding", true);
         }
     }
@@ -184,6 +195,7 @@ public class HoldNote : MonoBehaviour
         if (spawnedFX != null)
         {
             Destroy(spawnedFX);
+            spawnedFX = null;
         }
 
         if (backgroundRenderer != null)
@@ -222,5 +234,23 @@ public class HoldNote : MonoBehaviour
     public bool CanBePressed()
     {
         return canBePressed;
+    }
+
+    void OnDisable()
+    {
+        if (spawnedFX != null)
+        {
+            Destroy(spawnedFX);
+            spawnedFX = null;
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (spawnedFX != null)
+        {
+            Destroy(spawnedFX);
+            spawnedFX = null;
+        }
     }
 }
