@@ -4,9 +4,12 @@ using UnityEngine;
 public class HoldNote : MonoBehaviour
 {
     public float moveSpeed;
+    public GameObject holdFXPrefab;
 
     private SpriteRenderer backgroundRenderer;
     private SpriteRenderer foregroundRenderer;
+
+    private GameObject spawnedFX;
 
     private bool canBePressed = false;
     private bool started = false;
@@ -26,9 +29,6 @@ public class HoldNote : MonoBehaviour
 
     private float missTimer = 0f;
     private float scoreTimer = 0f;
-
-    public GameObject holdFXPrefab;
-    private GameObject spawnedFX;
 
     void Start()
     {
@@ -94,13 +94,8 @@ public class HoldNote : MonoBehaviour
         if (transform.position.x > judgementLineX + 10f)
         {
             scoringActive = false;
+            CleanupFX();
             Destroy(gameObject);
-
-            if (spawnedFX != null)
-            {
-                Destroy(spawnedFX);
-                spawnedFX = null;
-            }
         }
     }
 
@@ -108,16 +103,7 @@ public class HoldNote : MonoBehaviour
     {
         if (missed || finished) return;
 
-        if (spawnedFX != null)
-        {
-            Destroy(spawnedFX);
-            spawnedFX = null;
-        }
-
-        // Instantiate hold animation effect at judgement line
-        Vector3 fxPosition = new Vector3(judgementLineX, transform.position.y, 0f);
-        spawnedFX = Instantiate(holdFXPrefab, fxPosition, Quaternion.identity);
-        Debug.Log("Hold Animation Playing");
+        CleanupFX();
 
         if (canBePressed)
         {
@@ -125,19 +111,17 @@ public class HoldNote : MonoBehaviour
             isHolding = true;
             scoringActive = true;
             hasHeldSuccessfully = true;
-            //animator.SetBool("IsHolding", true);
+
+            Vector3 fxPosition = new Vector3(judgementLineX, transform.position.y, 0f);
+            spawnedFX = Instantiate(holdFXPrefab, fxPosition, Quaternion.identity);
         }
     }
 
     public void PlayerRelease()
     {
         if (missed || finished) return;
-        // animator.SetBool("IsHolding", false);
-        if (spawnedFX != null)
-        {
-            Destroy(spawnedFX);
-            spawnedFX = null;
-        }
+        
+        CleanupFX();
 
         if (allowedRelease)
         {
@@ -163,14 +147,8 @@ public class HoldNote : MonoBehaviour
     private void Miss()
     {
         missed = true;
-        //animator.SetBool("IsHolding", false);
         scoringActive = false;
-
-        if (spawnedFX != null)
-        {
-            Destroy(spawnedFX);
-            spawnedFX = null;
-        }
+        CleanupFX();
 
         if (backgroundRenderer != null)
         {
@@ -191,12 +169,7 @@ public class HoldNote : MonoBehaviour
     {
         scoringActive = false;
         isHolding = false;
-        //animator.SetBool("IsHolding", false);
-        if (spawnedFX != null)
-        {
-            Destroy(spawnedFX);
-            spawnedFX = null;
-        }
+        CleanupFX();
 
         if (backgroundRenderer != null)
         {
@@ -213,7 +186,6 @@ public class HoldNote : MonoBehaviour
         finished = true;
         scoringActive = false;
         isHolding = false;
-        // animator.SetBool("IsHolding", false);
         Destroy(gameObject, 0.2f);
     }
 
@@ -231,12 +203,7 @@ public class HoldNote : MonoBehaviour
         }
     }
 
-    public bool CanBePressed()
-    {
-        return canBePressed;
-    }
-
-    void OnDisable()
+    private void CleanupFX()
     {
         if (spawnedFX != null)
         {
@@ -245,12 +212,8 @@ public class HoldNote : MonoBehaviour
         }
     }
 
-    void OnDestroy()
-    {
-        if (spawnedFX != null)
-        {
-            Destroy(spawnedFX);
-            spawnedFX = null;
-        }
-    }
+    void OnDisable() => CleanupFX();
+    void OnDestroy() => CleanupFX();
+
+    public bool CanBePressed() => canBePressed;
 }
