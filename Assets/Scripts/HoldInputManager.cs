@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class HoldInputManager : MonoBehaviour
 {
     public HoldNoteSpawner holdSpawner;
+    private Dictionary<int, GameObject> activeHoldNotes = new Dictionary<int, GameObject>();
 
     void Update()
     {
@@ -39,15 +40,27 @@ public class HoldInputManager : MonoBehaviour
 
         HoldNote holdNote = nearestHoldNote.GetComponent<HoldNote>();
         holdNote.PlayerPress();
+        
+        // Store the active hold note for this lane
+        activeHoldNotes[lane] = nearestHoldNote;
     }
 
     private void TryReleaseHold(int lane)
     {
-        GameObject nearestHoldNote = FindNearestHoldNote(lane);
-        if (nearestHoldNote == null) return;
-
-        HoldNote holdNote = nearestHoldNote.GetComponent<HoldNote>();
-        holdNote.PlayerRelease();
+        // Use the stored hold note instead of finding it again
+        if (activeHoldNotes.TryGetValue(lane, out GameObject holdNoteObj))
+        {
+            if (holdNoteObj != null)
+            {
+                HoldNote holdNote = holdNoteObj.GetComponent<HoldNote>();
+                if (holdNote != null)
+                {
+                    holdNote.PlayerRelease();
+                }
+            }
+            // Remove from active notes
+            activeHoldNotes.Remove(lane);
+        }
     }
 
     private GameObject FindNearestHoldNote(int lane)

@@ -114,11 +114,32 @@ public class HoldNote : MonoBehaviour
         hasHeldSuccessfully = true;
     }
 
+    // Modification for the CleanupFX method in HoldNote class
+    private void CleanupFX()
+    {
+        if (spawnedFX != null)
+        {
+            // Immediately disable the renderer to make it invisible
+            Renderer[] renderers = spawnedFX.GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in renderers)
+            {
+                renderer.enabled = false;
+            }
+        
+            // Destroy it
+            Destroy(spawnedFX);
+            spawnedFX = null;
+        }
+    }
+
+// Also update the PlayerRelease method
     public void PlayerRelease()
     {
         if (missed || finished) return;
-        
+    
+        // Immediately cleanup FX
         CleanupFX();
+        isHolding = false;  // Stop holding immediately
 
         if (allowedRelease)
         {
@@ -129,7 +150,6 @@ public class HoldNote : MonoBehaviour
             EarlyRelease();
         }
     }
-
     private void EatHold()
     {
         float eatAmount = moveSpeed * Time.deltaTime;
@@ -200,17 +220,7 @@ public class HoldNote : MonoBehaviour
         }
     }
 
-    private void CleanupFX()
-    {
-        if (spawnedFX != null)
-        {
-            var anim = spawnedFX.GetComponent<Animator>();
-            if (anim != null) anim.speed = 0; // freeze it
-            Destroy(spawnedFX);
-            spawnedFX = null;
-        }
-    }
-
+ 
     void OnDisable() => CleanupFX();
     void OnDestroy() => CleanupFX();
 
