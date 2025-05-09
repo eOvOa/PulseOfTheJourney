@@ -101,20 +101,17 @@ public class HoldNote : MonoBehaviour
 
     public void PlayerPress()
     {
-        if (missed || finished) return;
+        if (missed || finished || !canBePressed) return;
 
         CleanupFX();
 
-        if (canBePressed)
-        {
-            started = true;
-            isHolding = true;
-            scoringActive = true;
-            hasHeldSuccessfully = true;
+        Vector3 fxPosition = new Vector3(judgementLineX, transform.position.y, 0f);
+        spawnedFX = Instantiate(holdFXPrefab, fxPosition, Quaternion.identity);
 
-            Vector3 fxPosition = new Vector3(judgementLineX, transform.position.y, 0f);
-            spawnedFX = Instantiate(holdFXPrefab, fxPosition, Quaternion.identity);
-        }
+        started = true;
+        isHolding = true;
+        scoringActive = true;
+        hasHeldSuccessfully = true;
     }
 
     public void PlayerRelease()
@@ -207,6 +204,8 @@ public class HoldNote : MonoBehaviour
     {
         if (spawnedFX != null)
         {
+            var anim = spawnedFX.GetComponent<Animator>();
+            if (anim != null) anim.speed = 0; // freeze it
             Destroy(spawnedFX);
             spawnedFX = null;
         }
