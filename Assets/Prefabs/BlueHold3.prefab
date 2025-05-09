@@ -199,6 +199,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 0
   hitWindow: 0.5
+  holdFXPrefab: {fileID: 4231985461465050737, guid: 4cec955028f7e49d5a31ba76dd9d71ef, type: 3}
+  spawnedFX: {fileID: 0}
 --- !u!1 &5089168991649736105
 GameObject:
   m_ObjectHideFlags: 0
@@ -295,7 +297,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5089168991649736105}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: b59c5b9dfbcd14bd39894cbd08606439, type: 2}
   m_CullingMode: 0

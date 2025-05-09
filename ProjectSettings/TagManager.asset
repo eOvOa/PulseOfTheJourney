@@ -52,6 +52,9 @@ TagManager:
   - name: NoteEffect
     uniqueID: 3317209103
     locked: 0
+  - name: HoldEffect
+    uniqueID: 3178148515
+    locked: 0
   - name: Character
     uniqueID: 4071432437
     locked: 0
