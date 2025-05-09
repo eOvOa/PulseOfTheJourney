@@ -26,6 +26,8 @@ public class HoldNote : MonoBehaviour
     private float missTimer = 0f;
     private float scoreTimer = 0f;
 
+    private Animator animator;
+
     void Start()
     {
         backgroundRenderer = transform.Find("Background").GetComponent<SpriteRenderer>();
@@ -38,6 +40,7 @@ public class HoldNote : MonoBehaviour
 
         width = backgroundRenderer.bounds.size.x;
         originalWidth = width;
+        animator = transform.Find("Foreground").GetComponent<Animator>();
     }
 
     void Update()
@@ -56,6 +59,7 @@ public class HoldNote : MonoBehaviour
         {
             if (!started)
             {
+                animator.SetBool("IsHolding", false);
                 Miss();
             }
             canBePressed = false;
@@ -103,12 +107,16 @@ public class HoldNote : MonoBehaviour
             isHolding = true;
             scoringActive = true;
             hasHeldSuccessfully = true;
+
+            animator.SetBool("IsHolding", true);
+            Debug.Log("Hold Animation Playing");
         }
     }
 
     public void PlayerRelease()
     {
         if (missed || finished) return;
+        animator.SetBool("IsHolding", false);
 
         if (allowedRelease)
         {
@@ -134,6 +142,7 @@ public class HoldNote : MonoBehaviour
     private void Miss()
     {
         missed = true;
+        animator.SetBool("IsHolding", false);
         scoringActive = false;
 
         if (backgroundRenderer != null)
@@ -155,6 +164,7 @@ public class HoldNote : MonoBehaviour
     {
         scoringActive = false;
         isHolding = false;
+        animator.SetBool("IsHolding", false);
 
         if (backgroundRenderer != null)
         {
@@ -171,6 +181,7 @@ public class HoldNote : MonoBehaviour
         finished = true;
         scoringActive = false;
         isHolding = false;
+        animator.SetBool("IsHolding", false);
         Destroy(gameObject, 0.2f);
     }
 
