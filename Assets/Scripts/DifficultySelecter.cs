@@ -26,13 +26,12 @@ public class DifficultySelector : MonoBehaviour
     [Header("提示文字管理")]
     public TextFader textFader;
 
-    // 移除难度切换特定按键设置，使用任意键切换
-
     private bool isAnimationPlayed = false;
     private bool isSelectingDifficulty = false;
     private float pressStartTime = 0f;
     private bool isButtonPressed = false;
     private bool allKeysHeld = false;
+    private bool wasHoldingAllKeys = false;
     
     // 用于确认的ASDF键
     private KeyCode[] confirmKeys = new KeyCode[] { 
@@ -78,16 +77,14 @@ public class DifficultySelector : MonoBehaviour
         }
         else if (isSelectingDifficulty)
         {
-            // 检查是否按下了任意键来切换难度
-            if (Input.anyKeyDown && !CheckAnyConfirmKeyPressed())
-            {
-                CycleDifficulty();
-            }
-
-            // 检查是否同时按下了ASDF键
-            allKeysHeld = CheckAllConfirmKeysHeld();
-
-            if (allKeysHeld)
+            // 首先检查当前帧是否同时按下了所有ASDF键
+            bool currentlyHoldingAllKeys = CheckAllConfirmKeysHeld();
+            
+            // 预先检查：如果有任何ASDF键在这一帧被按下
+            bool anyConfirmKeyDownThisFrame = CheckAnyConfirmKeyDown();
+            
+            // 确认键逻辑（同时按住ASDF）- 优先处理
+            if (currentlyHoldingAllKeys)
             {
                 if (!isButtonPressed)
                 {
@@ -134,8 +131,28 @@ public class DifficultySelector : MonoBehaviour
                 }
 
                 if (textFader != null)
-                    textFader.Show("Hold ASDF to enter difficulty", true);
+                    textFader.Show("Press A/S/D/F to change difficulty\nHold ASDF to enter", true);
             }
+            // 只有在以下情况下才检测难度切换操作：
+            // 1. 当前没有同时按住所有ASDF键
+            // 2. 上一帧也没有同时按住所有ASDF键
+            // 3. 不是刚从"全部按住"状态释放键
+            else if (!wasHoldingAllKeys)
+            {
+                // 检查是否单独按下了ASDF中的任意一个键来切换难度
+                if (anyConfirmKeyDownThisFrame)
+                {
+                    CycleDifficulty();
+                }
+                // 检查是否按下了除ASDF之外的其他键来切换难度
+                else if (Input.anyKeyDown)
+                {
+                    CycleDifficulty();
+                }
+            }
+            
+            // 保存当前的全键按住状态用于下一帧比较
+            wasHoldingAllKeys = currentlyHoldingAllKeys;
         }
     }
 
@@ -152,9 +169,27 @@ public class DifficultySelector : MonoBehaviour
         return true;
     }
     
-    // 检查是否有任何确认键被按下（用于防止确认键被用作切换难度键）
-    private bool CheckAnyConfirmKeyPressed()
+    // 检查是否有任何确认键被按下
+    private bool CheckAnyConfirmKeyDown()
     {
+        // 首先检查是否已经有多个确认键被按住
+        int keysCurrentlyHeld = 0;
+        foreach (KeyCode key in confirmKeys)
+        {
+            if (Input.GetKey(key))
+            {
+                keysCurrentlyHeld++;
+            }
+        }
+        
+        // 如果已经有2个或更多确认键被按住，则不处理单键按下事件
+        // 这可以防止在开始同时按下ASDF的过程中触发难度切换
+        if (keysCurrentlyHeld >= 2)
+        {
+            return false;
+        }
+        
+        // 只有当不是在尝试按住多个键时，才检查单个按键按下事件
         foreach (KeyCode key in confirmKeys)
         {
             if (Input.GetKeyDown(key))
@@ -204,7 +239,7 @@ public class DifficultySelector : MonoBehaviour
 
         if (textFader != null)
         {
-            textFader.Show("Press ANY KEY to change difficulty\nHold ASDF to enter", true);
+            textFader.Show("Press A/S/D/F to change difficulty\nHold ASDF to enter", true);
         }
     }
 
