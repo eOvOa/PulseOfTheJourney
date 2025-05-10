@@ -1067,6 +1067,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noteSpawner: {fileID: 1935743899}
+  tapHitSound: {fileID: 8300000, guid: 82ff648a417d94920945efbe43dfef36, type: 3}
 --- !u!4 &778794741
 Transform:
   m_ObjectHideFlags: 0
@@ -1584,6 +1585,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   holdSpawner: {fileID: 699063626}
+  holdStartSound: {fileID: 8300000, guid: 750c09740acb3498db292e621bb927b5, type: 3}
+  holdReleaseSound: {fileID: 0}
 --- !u!4 &1028699205
 Transform:
   m_ObjectHideFlags: 0

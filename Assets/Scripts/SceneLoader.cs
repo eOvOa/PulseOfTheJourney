@@ -5,7 +5,17 @@ using System.Collections;
 public class SceneLoader : MonoBehaviour
 {
     private bool isAnimationPlaying = false;
-    public Animator openAnimator; // 在 Inspector 中挂带 Animator 的对象
+    public Animator openAnimator;
+    public SoundtrackManager soundtrackManager;
+    public float fadeDuration = 1.5f;
+
+    void Start()
+    {
+        if (soundtrackManager == null)
+        {
+            soundtrackManager = FindObjectOfType<SoundtrackManager>();
+        }
+    }
 
     void Update()
     {
@@ -18,22 +28,30 @@ public class SceneLoader : MonoBehaviour
 
     IEnumerator PlayAndLoad()
     {
-        openAnimator.SetTrigger("Play");
-
-        float animationLength = 1.5f; // 默认时长，防止没找到动画
-
-        // 获取动画实际时长
-        foreach (AnimationClip clip in openAnimator.runtimeAnimatorController.animationClips)
+        if (openAnimator != null)
         {
-            if (clip.name == "start")
+            openAnimator.SetTrigger("Play");
+        }
+
+        float animationLength = 1.5f;
+        if (openAnimator != null)
+        {
+            foreach (AnimationClip clip in openAnimator.runtimeAnimatorController.animationClips)
             {
-                animationLength = clip.length;
-                break;
+                if (clip.name == "start")
+                {
+                    animationLength = clip.length;
+                    break;
+                }
             }
         }
 
-        yield return new WaitForSeconds(animationLength); // 等动画播放完
+        if (soundtrackManager != null)
+        {
+            soundtrackManager.FadeOutAndPause(fadeDuration);
+        }
 
-        SceneManager.LoadScene("Game"); // 切换场景
+        yield return new WaitForSeconds(animationLength);
+        SceneManager.LoadScene("Game");
     }
 }

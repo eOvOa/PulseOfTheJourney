@@ -53,7 +53,7 @@
   { "time": 35.387, "lane": 1, "type": "Hold", "holdLength": 3 },
   { "time": 35.387, "lane": 2, "type": "Hold", "holdLength": 3 },
   { "time": 36.769, "lane": 0, "type": "Hold", "holdLength": 3 },
-  { "time": 36.769, "lane": 1, "type": "Hold", "holdLength": 4 },
+  { "time": 36.769, "lane": 1, "type": "Hold", "holdLength": 3 },
   { "time": 38.232, "lane": 2, "type": "Hold", "holdLength": 3 },
   { "time": 38.232, "lane": 3, "type": "Hold", "holdLength": 3 },
   { "time": 39.555, "lane": 2, "type": "Hold", "holdLength": 3 },
