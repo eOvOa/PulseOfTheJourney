@@ -16,7 +16,6 @@ public class ScoreManager : MonoBehaviour
     
     // 连击相关变量
     private int currentCombo = 0;  // 总连击数
-    private int holdCount = 0;     // Hold音符的击中数量
     private float lastHitTime = 0f;
     private float comboResetTime = 2.0f; // 如果超过2秒没有击中，combo重置
     
@@ -72,12 +71,11 @@ public class ScoreManager : MonoBehaviour
         ShowHitFeedback();
     }
     
-    // 正确击中Hold音符
+    // 正确击中Hold音符 - 只在开始Hold时调用一次
     public void AddHoldNoteScore(int amount)
     {
         score += amount;
         currentCombo++;
-        holdCount++; // 特别记录Hold音符的击中次数
         lastHitTime = Time.time;
         
         // 显示相应的连击提示
@@ -89,7 +87,7 @@ public class ScoreManager : MonoBehaviour
     {
         // 仅增加分数，不增加连击，不显示新提示
         score += amount;
-        lastHitTime = Time.time;
+        lastHitTime = Time.time; // 更新最后一次击中时间，防止超时重置
     }
 
     // 未击中时调用此方法
@@ -109,7 +107,6 @@ public class ScoreManager : MonoBehaviour
     private void ResetCombo()
     {
         currentCombo = 0;
-        holdCount = 0;
     }
     
     // 显示击中后的连击提示
@@ -126,14 +123,14 @@ public class ScoreManager : MonoBehaviour
         HideAllFeedback();
         
         // 根据连击数选择要显示的提示
-        if (currentCombo >= 5) // 总连击数达到5（Hold和Tap的组合）
+        if (currentCombo >= 5) // 总连击数达到5就显示Combo
         {
             // 五连击及以上显示Combo
             activeFeedbackCoroutine = StartCoroutine(ShowTemporaryFeedback(comboSprite));
         }
-        else if (holdCount >= 3) // 如果Hold音符达到3个
+        else if (currentCombo >= 3) // 三连击就显示Nice
         {
-            // 三个Hold显示Nice
+            // 三连击显示Nice
             activeFeedbackCoroutine = StartCoroutine(ShowTemporaryFeedback(niceSprite));
         }
     }

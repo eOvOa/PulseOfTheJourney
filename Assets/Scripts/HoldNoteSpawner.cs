@@ -63,8 +63,7 @@ public class HoldNoteSpawner : MonoBehaviour
             GameObject holdNoteObj = Instantiate(prefab, spawnPoints[lane].position, Quaternion.identity);
 
             HoldNote holdNote = holdNoteObj.GetComponent<HoldNote>();
-            holdNote.moveSpeed = (2.932941f - startX) / (BeatmapLoader.Instance.approachTime * 1.15f);//holdnote移动速度微调在这
-
+            holdNote.moveSpeed = (2.932941f - startX) / (BeatmapLoader.Instance.approachTime * 1.15f); // holdnote移动速度微调在这
 
             activeHoldNotes[lane].Add(holdNoteObj);
         }
