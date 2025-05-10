@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 [System.Serializable]
 public class NoteData
@@ -56,17 +57,39 @@ public class BeatmapLoader : MonoBehaviour
 
     private void LoadBeatmap()
     {
-        string path = Path.Combine(Application.streamingAssetsPath, "beatmap.json");
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        string beatmapFileName;
+
+        // 根据场景名称选择不同的JSON文件
+        if (currentSceneName == "Game")
+        {
+            beatmapFileName = "hard.json";
+        }
+        else if (currentSceneName == "Medium")
+        {
+            beatmapFileName = "medium.json";
+        }
+        else if (currentSceneName == "Easy")
+        {
+            beatmapFileName = "easy.json";
+        }
+        else
+        {
+            Debug.LogError("❌ Unknown scene name: " + currentSceneName);
+            return;
+        }
+
+        string path = Path.Combine(Application.streamingAssetsPath, beatmapFileName);
 
         if (File.Exists(path))
         {
             string jsonContent = File.ReadAllText(path);
             notes = ParseJson(jsonContent);
-            Debug.Log($"✅ Loaded {notes.Count} notes from beatmap.json");
+            Debug.Log($"✅ Loaded {notes.Count} notes from {beatmapFileName}");
         }
         else
         {
-            Debug.LogError("❌ Beatmap file not found at: " + path);
+            Debug.LogError($"❌ Beatmap file not found at: {path}");
         }
     }
 
