@@ -713,7 +713,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 345781211}
-  fadeSpeed: 1.5
+  fadeSpeed: 1.2
 --- !u!4 &1378205517
 Transform:
   m_ObjectHideFlags: 0

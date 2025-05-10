@@ -123,14 +123,14 @@ public class ScoreManager : MonoBehaviour
         HideAllFeedback();
         
         // 根据连击数选择要显示的提示
-        if (currentCombo >= 5) // 总连击数达到5就显示Combo
+        if (currentCombo >= 10) 
         {
-            // 五连击及以上显示Combo
+           
             activeFeedbackCoroutine = StartCoroutine(ShowTemporaryFeedback(comboSprite));
         }
-        else if (currentCombo >= 3) // 三连击就显示Nice
+        else if (currentCombo >= 5) 
         {
-            // 三连击显示Nice
+           
             activeFeedbackCoroutine = StartCoroutine(ShowTemporaryFeedback(niceSprite));
         }
     }
