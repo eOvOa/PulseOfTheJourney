@@ -159,7 +159,6 @@ MonoBehaviour:
   longPressTime: 0.5
   holdProgressBar: {fileID: 0}
   textFader: {fileID: 0}
-  difficultyChangeKey: 32
 --- !u!4 &263120207
 Transform:
   m_ObjectHideFlags: 0
@@ -558,6 +557,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 1445209505}
   blinkSpeed: 0.5
+  delayBeforeBlink: 1
 --- !u!4 &670472853
 Transform:
   m_ObjectHideFlags: 0
@@ -1055,7 +1055,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -19, y: -494.06}
+  m_AnchoredPosition: {x: 555, y: -465}
   m_SizeDelta: {x: 960, y: 178.2117}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1445209505
