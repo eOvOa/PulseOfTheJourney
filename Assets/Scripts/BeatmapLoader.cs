@@ -27,10 +27,8 @@ public class BeatmapLoader : MonoBehaviour
     public AudioSource audioSource;
     public bool musicStarted = false;
 
-    public float approachTime = 2f; // 你设定的approach time（比如2秒）
-    private float musicDelay = 0f;   // 自动计算得到的延迟时间
-    
-    // 用于存储当前场景是否是游戏场景
+    public float approachTime = 2f;
+    private float musicDelay = 0f;
     private bool isGameScene = false;
 
     private void Awake()
@@ -39,8 +37,6 @@ public class BeatmapLoader : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            
-            // 在Awake中检查当前场景并加载谱面
             CheckSceneAndLoadBeatmap();
         }
         else
@@ -51,94 +47,62 @@ public class BeatmapLoader : MonoBehaviour
 
     private void Start()
     {
-        // 如果当前不是游戏场景，则不需要执行后续操作
         if (!isGameScene) return;
-        
-        // 找到音频源组件
         FindAudioSource();
-
         CalculateMusicDelay();
         StartCoroutine(DelayedMusicStart());
     }
 
     private void FindAudioSource()
     {
-        // 如果已经在Inspector中分配了audioSource，就不需要查找
-        if (audioSource != null)
+        if (audioSource != null) return;
+
+        if (SoundtrackManager.Instance != null)
         {
-            return;
+            audioSource = SoundtrackManager.Instance.AudioSource;
+            if (audioSource != null) return;
         }
-        
-        // 尝试查找场景中的音频源
+
         AudioSource[] audioSources = FindObjectsOfType<AudioSource>();
         if (audioSources.Length > 0)
         {
             audioSource = audioSources[0];
-            Debug.Log($"✅ 找到音频源在物体: {audioSource.gameObject.name}");
-        }
-        else
-        {
-            Debug.LogError("❌ 场景中没有找到任何音频源！");
         }
     }
 
     private void CheckSceneAndLoadBeatmap()
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
-        
-        // 检查当前场景是否是游戏场景
-        if (currentSceneName == "Game" || currentSceneName == "Medium" || currentSceneName == "Easy")
+        string beatmapFileName = currentSceneName.ToLower() + ".json";
+        string path = Path.Combine(Application.streamingAssetsPath, beatmapFileName);
+
+        if (File.Exists(path))
         {
             isGameScene = true;
             LoadBeatmap();
         }
         else
         {
-            // 如果不是游戏场景（例如Start、Menu等），跳过加载谱面
             isGameScene = false;
-            Debug.Log($"当前场景 '{currentSceneName}' 不是游戏场景，跳过谱面加载。");
+            notes.Clear();
         }
     }
+
 
     private void LoadBeatmap()
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
-        string beatmapFileName;
-
-        // 根据场景名称选择不同的JSON文件
-        if (currentSceneName == "Game")
-        {
-            beatmapFileName = "hard.json";
-        }
-        else if (currentSceneName == "Medium")
-        {
-            beatmapFileName = "medium.json";
-        }
-        else if (currentSceneName == "Easy")
-        {
-            beatmapFileName = "easy.json";
-        }
-        else
-        {
-            // 对于非游戏场景，我们可以选择不加载谱面或加载默认谱面
-            Debug.Log($"场景 '{currentSceneName}' 不需要加载谱面。");
-            notes.Clear(); // 清空之前的谱面数据
-            return;
-        }
-
+        string beatmapFileName = currentSceneName.ToLower() + ".json";
         string path = Path.Combine(Application.streamingAssetsPath, beatmapFileName);
-        Debug.Log($"正在尝试加载: {path}");
 
         if (File.Exists(path))
         {
             string jsonContent = File.ReadAllText(path);
             notes = ParseJson(jsonContent);
-            Debug.Log($"✅ 从 {beatmapFileName} 加载了 {notes.Count} 个音符");
         }
         else
         {
-            Debug.LogError($"❌ 在路径找不到谱面文件: {path}");
-            notes.Clear(); // 清空之前的谱面数据
+            notes.Clear();
         }
     }
 
@@ -153,7 +117,6 @@ public class BeatmapLoader : MonoBehaviour
     {
         if (notes.Count == 0)
         {
-            Debug.LogWarning("⚠️ 没有加载音符，跳过音乐延迟计算。");
             musicDelay = 0f;
             return;
         }
@@ -163,11 +126,8 @@ public class BeatmapLoader : MonoBehaviour
 
         if (musicDelay < 0f)
         {
-            Debug.LogWarning($"⚠️ 第一个音符太早了！设置 musicDelay = 0");
             musicDelay = 0f;
         }
-
-        Debug.Log($"🎵 自动计算的音乐延迟: {musicDelay:F3} 秒 (第一个音符在 {firstNoteTime:F3}秒, ApproachTime {approachTime}秒)");
     }
 
     private IEnumerator DelayedMusicStart()
@@ -178,15 +138,9 @@ public class BeatmapLoader : MonoBehaviour
         {
             audioSource.Play();
             musicStarted = true;
-            Debug.Log("🎵 音乐在延迟后开始播放: " + musicDelay.ToString("F3") + "秒");
-        }
-        else
-        {
-            Debug.LogError("❌ AudioSource 为空，无法播放音乐！请确保场景中有音频源组件。");
         }
     }
 
-    // 当场景改变时可能需要重新加载谱面
     void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -199,16 +153,9 @@ public class BeatmapLoader : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 检查新加载的场景并相应地加载谱面
         CheckSceneAndLoadBeatmap();
-        
-        // 如果不是游戏场景，则不需要后续操作
         if (!isGameScene) return;
-        
-        // 重新查找音频源
         FindAudioSource();
-        
-        // 重新计算并启动音乐
         CalculateMusicDelay();
         StartCoroutine(DelayedMusicStart());
     }

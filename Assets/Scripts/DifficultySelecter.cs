@@ -2,51 +2,48 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class DifficultySelector : MonoBehaviour
 {
-    [Header("音频设置")]
     public SoundtrackManager soundtrackManager;
     public float fadeOutDuration = 1.0f;
 
-    [Header("难度选择")]
     public GameObject[] difficultySprites;
     private int currentDifficultyIndex = 0;
 
-    [Header("动画设置")]
     public Animator introAnimator;
     public string animationTriggerName = "Play";
 
-    [Header("场景切换")]
     public float longPressTime = 2.0f;
-
-    [Header("确认进度条")]
     public Slider holdProgressBar;
-
-    [Header("提示文字管理")]
     public TextFader textFader;
 
     private bool isAnimationPlayed = false;
     private bool isSelectingDifficulty = false;
     private float pressStartTime = 0f;
     private bool isButtonPressed = false;
-    private bool allKeysHeld = false;
     private bool wasHoldingAllKeys = false;
-    
-    // 用于确认的ASDF键
-    private KeyCode[] confirmKeys = new KeyCode[] { 
-        KeyCode.A, 
-        KeyCode.S, 
-        KeyCode.D, 
-        KeyCode.F 
+
+    private KeyCode[] confirmKeys = new KeyCode[] {
+        KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F
     };
 
+    private Coroutine simultaneousCheckCoroutine;
     public static int selectedDifficulty = 0;
 
     void Start()
     {
         if (soundtrackManager == null)
-            soundtrackManager = FindObjectOfType<SoundtrackManager>();
+            soundtrackManager = SoundtrackManager.Instance;
+
+        if (soundtrackManager != null)
+        {
+            SpriteRenderer bgRenderer = FindObjectOfType<SpriteRenderer>();
+            soundtrackManager.SetSceneReferences(bgRenderer, textFader);
+            soundtrackManager.StopAudio();
+            soundtrackManager.ResumeAudio();
+        }
 
         foreach (GameObject sprite in difficultySprites)
         {
@@ -69,7 +66,6 @@ public class DifficultySelector : MonoBehaviour
     {
         if (!isAnimationPlayed)
         {
-            // 检测任意按键而不只是空格键
             if (Input.anyKeyDown)
             {
                 PlayIntroAnimation();
@@ -77,20 +73,14 @@ public class DifficultySelector : MonoBehaviour
         }
         else if (isSelectingDifficulty)
         {
-            // 首先检查当前帧是否同时按下了所有ASDF键
             bool currentlyHoldingAllKeys = CheckAllConfirmKeysHeld();
-            
-            // 预先检查：如果有任何ASDF键在这一帧被按下
-            bool anyConfirmKeyDownThisFrame = CheckAnyConfirmKeyDown();
-            
-            // 确认键逻辑（同时按住ASDF）- 优先处理
+
             if (currentlyHoldingAllKeys)
             {
                 if (!isButtonPressed)
                 {
                     pressStartTime = Time.time;
                     isButtonPressed = true;
-
                     if (textFader != null)
                         textFader.Show("Hold ASDF to enter level", true);
                 }
@@ -101,7 +91,6 @@ public class DifficultySelector : MonoBehaviour
                 {
                     if (!holdProgressBar.gameObject.activeSelf)
                         holdProgressBar.gameObject.SetActive(true);
-
                     holdProgressBar.value = heldTime / longPressTime;
                 }
 
@@ -117,7 +106,8 @@ public class DifficultySelector : MonoBehaviour
                         holdProgressBar.gameObject.SetActive(false);
                     }
 
-                    if (textFader != null) textFader.Hide();
+                    if (textFader != null)
+                        textFader.Hide();
                 }
             }
             else if (isButtonPressed)
@@ -133,30 +123,18 @@ public class DifficultySelector : MonoBehaviour
                 if (textFader != null)
                     textFader.Show("Press A/S/D/F to change difficulty\nHold ASDF to enter", true);
             }
-            // 只有在以下情况下才检测难度切换操作：
-            // 1. 当前没有同时按住所有ASDF键
-            // 2. 上一帧也没有同时按住所有ASDF键
-            // 3. 不是刚从"全部按住"状态释放键
-            else if (!wasHoldingAllKeys)
+            else if (Input.anyKeyDown)
             {
-                // 检查是否单独按下了ASDF中的任意一个键来切换难度
-                if (anyConfirmKeyDownThisFrame)
+                if (simultaneousCheckCoroutine == null)
                 {
-                    CycleDifficulty();
-                }
-                // 检查是否按下了除ASDF之外的其他键来切换难度
-                else if (Input.anyKeyDown)
-                {
-                    CycleDifficulty();
+                    simultaneousCheckCoroutine = StartCoroutine(CheckSimultaneousPress(0.15f));
                 }
             }
-            
-            // 保存当前的全键按住状态用于下一帧比较
+
             wasHoldingAllKeys = currentlyHoldingAllKeys;
         }
     }
 
-    // 检查是否所有确认键（ASDF）都被按住
     private bool CheckAllConfirmKeysHeld()
     {
         foreach (KeyCode key in confirmKeys)
@@ -168,36 +146,30 @@ public class DifficultySelector : MonoBehaviour
         }
         return true;
     }
-    
-    // 检查是否有任何确认键被按下
-    private bool CheckAnyConfirmKeyDown()
+
+    private IEnumerator CheckSimultaneousPress(float window)
     {
-        // 首先检查是否已经有多个确认键被按住
-        int keysCurrentlyHeld = 0;
-        foreach (KeyCode key in confirmKeys)
+        float startTime = Time.time;
+
+        while (Time.time - startTime < window)
         {
-            if (Input.GetKey(key))
+            int keysHeld = 0;
+            foreach (KeyCode key in confirmKeys)
             {
-                keysCurrentlyHeld++;
+                if (Input.GetKey(key))
+                    keysHeld++;
             }
-        }
-        
-        // 如果已经有2个或更多确认键被按住，则不处理单键按下事件
-        // 这可以防止在开始同时按下ASDF的过程中触发难度切换
-        if (keysCurrentlyHeld >= 2)
-        {
-            return false;
-        }
-        
-        // 只有当不是在尝试按住多个键时，才检查单个按键按下事件
-        foreach (KeyCode key in confirmKeys)
-        {
-            if (Input.GetKeyDown(key))
+
+            if (keysHeld >= 4)
             {
-                return true;
+                yield break;
             }
+
+            yield return null;
         }
-        return false;
+
+        CycleDifficulty();
+        simultaneousCheckCoroutine = null;
     }
 
     private void PlayIntroAnimation()
@@ -276,6 +248,9 @@ public class DifficultySelector : MonoBehaviour
     {
         yield return new WaitForSeconds(fadeOutDuration);
 
+        if (soundtrackManager != null)
+            soundtrackManager.PrepareForNewScene();
+
         string sceneToLoad = GetSceneNameForDifficulty(currentDifficultyIndex);
         SceneManager.LoadScene(sceneToLoad);
     }
@@ -286,7 +261,7 @@ public class DifficultySelector : MonoBehaviour
         {
             case 0: return "Easy";
             case 1: return "Medium";
-            case 2: return "Game";
+            case 2: return "Hard";
             default: return "Game";
         }
     }
