@@ -1,17 +1,24 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
     public NoteSpawner noteSpawner;
-    private KeyCode[] laneKeys = { KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F };
+    private Dictionary<int, List<GameObject>> pressableNotes = new Dictionary<int, List<GameObject>>();
     
-    // 缓存可按的音符列表，避免每次都搜索全部音符
-    private Dictionary<int, List<GameObject>> pressableNotes = new Dictionary<int, List<GameObject>>(4);
+    // 音效相关
+    public AudioClip tapHitSound;
+    private AudioSource audioSource;
     
-    private void Start()
+    void Awake()
     {
-        // 初始化字典
+        // 初始化音频源
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        
         for (int i = 0; i < 4; i++)
         {
             pressableNotes[i] = new List<GameObject>();
@@ -20,72 +27,64 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
-        for (int lane = 0; lane < laneKeys.Length; lane++)
-        {
-            if (Input.GetKeyDown(laneKeys[lane]))
-            {
-                ProcessKeyPress(lane);
-            }
-        }
+        if (Input.GetKeyDown(KeyCode.A))
+            TryJudgeNote(0);
+
+        if (Input.GetKeyDown(KeyCode.S))
+            TryJudgeNote(1);
+
+        if (Input.GetKeyDown(KeyCode.D))
+            TryJudgeNote(2);
+
+        if (Input.GetKeyDown(KeyCode.F))
+            TryJudgeNote(3);
     }
-    
-    private void ProcessKeyPress(int lane)
+
+    private void TryJudgeNote(int lane)
     {
-        GameObject closestNote = FindClosestNonJudgedNote(lane);
-        
-        if (closestNote != null)
+        if (pressableNotes[lane].Count > 0)
         {
-            Note noteScript = closestNote.GetComponent<Note>();
-            if (noteScript != null)
+            foreach (GameObject noteObj in pressableNotes[lane])
             {
-                noteScript.TryJudge();
+                if (noteObj == null) continue;
+                
+                Note note = noteObj.GetComponent<Note>();
+                if (note != null && !note.judged)
+                {
+                    note.TryJudge();
+                    
+                    // 如果音符被成功击中，播放音效
+                    if (note.judged && !note.missed)
+                    {
+                        PlaySound(tapHitSound);
+                    }
+                    
+                    break;
+                }
             }
         }
     }
     
-    // 优化版本的最近音符查找
-    private GameObject FindClosestNonJudgedNote(int lane)
+    // 播放音效的方法
+    private void PlaySound(AudioClip clip)
     {
-        List<GameObject> notes = noteSpawner.GetNotesInLane(lane);
-        
-        GameObject closest = null;
-        float closestDistance = float.MaxValue;
-        
-        // 使用更高效的遍历方式
-        for (int i = 0; i < notes.Count; i++)
+        if (audioSource != null && clip != null)
         {
-            GameObject noteObj = notes[i];
-            if (noteObj == null) continue;
-            
-            Note note = noteObj.GetComponent<Note>();
-            if (note == null || note.judged) continue;
-            
-            // 使用缓存的判定线位置
-            float distance = Mathf.Abs(noteObj.transform.position.x - Note.JudgementLineX);
-            
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closest = noteObj;
-            }
+            audioSource.PlayOneShot(clip);
         }
-        
-        return closest;
     }
     
-    // 添加可按音符到列表
     public void AddPressableNote(int lane, GameObject note)
     {
-        if (pressableNotes.ContainsKey(lane))
+        if (lane >= 0 && lane < 4 && !pressableNotes[lane].Contains(note))
         {
             pressableNotes[lane].Add(note);
         }
     }
-    
-    // 从列表移除音符
+
     public void RemovePressableNote(int lane, GameObject note)
     {
-        if (pressableNotes.ContainsKey(lane))
+        if (lane >= 0 && lane < 4 && pressableNotes[lane].Contains(note))
         {
             pressableNotes[lane].Remove(note);
         }

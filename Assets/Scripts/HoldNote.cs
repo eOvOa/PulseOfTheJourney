@@ -20,7 +20,7 @@ public class HoldNote : MonoBehaviour
     private bool scheduledDestroy = false;
     private bool scoringActive = false;
     private bool hasHeldSuccessfully = false;
-    private bool hasCountedInCombo = false; // New flag to track if this hold note has been counted in combo
+    private bool hasCountedInCombo = false;
 
     private float width;
     private float originalWidth;
@@ -31,7 +31,6 @@ public class HoldNote : MonoBehaviour
     private float missTimer = 0f;
     private float scoreTimer = 0f;
 
-    // Reference to the spawner
     private HoldNoteSpawner spawner;
     private int lane = 0;
 
@@ -48,12 +47,9 @@ public class HoldNote : MonoBehaviour
         width = backgroundRenderer.bounds.size.x;
         originalWidth = width;
         
-        // Find the spawner
         spawner = FindObjectOfType<HoldNoteSpawner>();
         
-        // Determine the lane based on position (assuming lanes are numbered 0-3 from bottom to top)
         float yPos = transform.position.y;
-        // Set the lane based on y position (adjust these thresholds based on your game)
         if (yPos < -1.5f) lane = 0;
         else if (yPos < -0.5f) lane = 1;
         else if (yPos < 0.5f) lane = 2;
@@ -128,10 +124,9 @@ public class HoldNote : MonoBehaviour
         scoringActive = true;
         hasHeldSuccessfully = true;
         
-        // Count this hold note once in the combo system
         if (!hasCountedInCombo)
         {
-            ScoreManager.Instance.AddHoldNoteScore(100); // Initial score for starting the hold
+            ScoreManager.Instance.AddHoldNoteScore(100);
             hasCountedInCombo = true;
         }
     }
@@ -140,14 +135,12 @@ public class HoldNote : MonoBehaviour
     {
         if (spawnedFX != null)
         {
-            // Immediately disable the renderer to make it invisible
             Renderer[] renderers = spawnedFX.GetComponentsInChildren<Renderer>();
             foreach (Renderer renderer in renderers)
             {
                 renderer.enabled = false;
             }
         
-            // Destroy it
             Destroy(spawnedFX);
             spawnedFX = null;
         }
@@ -157,9 +150,8 @@ public class HoldNote : MonoBehaviour
     {
         if (missed || finished) return;
     
-        // Immediately cleanup FX
         CleanupFX();
-        isHolding = false;  // Stop holding immediately
+        isHolding = false;
 
         if (allowedRelease)
         {
@@ -169,6 +161,11 @@ public class HoldNote : MonoBehaviour
         {
             EarlyRelease();
         }
+    }
+    
+    public bool CheckAllowedRelease()
+    {
+        return allowedRelease;
     }
     
     private void EatHold()
@@ -202,7 +199,6 @@ public class HoldNote : MonoBehaviour
             ScoreManager.Instance.SubtractScore(3000);
         }
         
-        // Notify the spawner to remove this note
         if (spawner != null)
         {
             spawner.RemoveHoldNote(lane, gameObject);
@@ -231,7 +227,6 @@ public class HoldNote : MonoBehaviour
         scoringActive = false;
         isHolding = false;
         
-        // 完成Hold时给予奖励分数，但不增加combo数
         ScoreManager.Instance.AddHoldScore(500);
         
         Destroy(gameObject, 0.2f);
@@ -245,7 +240,6 @@ public class HoldNote : MonoBehaviour
         {
             if (isHolding)
             {
-                // Add small continuous score but do NOT count for combo
                 ScoreManager.Instance.AddHoldScore(1);
             }
             scoreTimer = 0f;
@@ -257,7 +251,6 @@ public class HoldNote : MonoBehaviour
     {
         CleanupFX();
         
-        // Notify the spawner to remove this note
         if (spawner != null)
         {
             spawner.RemoveHoldNote(lane, gameObject);

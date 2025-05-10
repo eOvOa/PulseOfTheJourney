@@ -63,7 +63,7 @@ public class HoldNoteSpawner : MonoBehaviour
             GameObject holdNoteObj = Instantiate(prefab, spawnPoints[lane].position, Quaternion.identity);
 
             HoldNote holdNote = holdNoteObj.GetComponent<HoldNote>();
-            holdNote.moveSpeed = (2.932941f - startX) / (BeatmapLoader.Instance.approachTime * 1.15f); // holdnote移动速度微调在这
+            holdNote.moveSpeed = (2.932941f - startX) / (BeatmapLoader.Instance.approachTime * 1.15f);
 
             activeHoldNotes[lane].Add(holdNoteObj);
         }
@@ -71,12 +71,16 @@ public class HoldNoteSpawner : MonoBehaviour
 
     public List<GameObject> GetActiveHoldNotes(int lane)
     {
-        return activeHoldNotes[lane];
+        if (lane >= 0 && lane < activeHoldNotes.Length)
+        {
+            return activeHoldNotes[lane];
+        }
+        return new List<GameObject>();
     }
 
     public void RemoveHoldNote(int lane, GameObject note)
     {
-        if (activeHoldNotes[lane].Contains(note))
+        if (lane >= 0 && lane < activeHoldNotes.Length && activeHoldNotes[lane].Contains(note))
         {
             activeHoldNotes[lane].Remove(note);
         }

@@ -5,6 +5,21 @@ public class HoldInputManager : MonoBehaviour
 {
     public HoldNoteSpawner holdSpawner;
     private Dictionary<int, GameObject> activeHoldNotes = new Dictionary<int, GameObject>();
+    
+    // 音效相关
+    public AudioClip holdStartSound;
+    public AudioClip holdReleaseSound;
+    private AudioSource audioSource;
+
+    void Awake()
+    {
+        // 初始化音频源
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+    }
 
     void Update()
     {
@@ -41,6 +56,9 @@ public class HoldInputManager : MonoBehaviour
         HoldNote holdNote = nearestHoldNote.GetComponent<HoldNote>();
         holdNote.PlayerPress();
         
+        // 播放Hold开始音效
+        PlaySound(holdStartSound);
+        
         // Store the active hold note for this lane
         activeHoldNotes[lane] = nearestHoldNote;
     }
@@ -55,7 +73,14 @@ public class HoldInputManager : MonoBehaviour
                 HoldNote holdNote = holdNoteObj.GetComponent<HoldNote>();
                 if (holdNote != null)
                 {
+                    bool wasAllowedRelease = holdNote.CheckAllowedRelease();
                     holdNote.PlayerRelease();
+                    
+                    // 只有成功释放时才播放音效
+                    if (wasAllowedRelease)
+                    {
+                        PlaySound(holdReleaseSound);
+                    }
                 }
             }
             // Remove from active notes
@@ -88,5 +113,14 @@ public class HoldInputManager : MonoBehaviour
         }
 
         return nearest;
+    }
+    
+    // 播放音效的方法
+    private void PlaySound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 }
