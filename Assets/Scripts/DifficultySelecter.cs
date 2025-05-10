@@ -26,8 +26,7 @@ public class DifficultySelector : MonoBehaviour
     [Header("提示文字管理")]
     public TextFader textFader;
 
-    [Header("难度切换按键")]
-    public KeyCode difficultyChangeKey = KeyCode.Space; // 用于切换难度的键
+    // 移除难度切换特定按键设置，使用任意键切换
 
     private bool isAnimationPlayed = false;
     private bool isSelectingDifficulty = false;
@@ -63,7 +62,7 @@ public class DifficultySelector : MonoBehaviour
 
         if (textFader != null)
         {
-            textFader.Show("Press SPACE to start", true);
+            textFader.Show("Press ANY KEY to start", true);
         }
     }
 
@@ -71,15 +70,16 @@ public class DifficultySelector : MonoBehaviour
     {
         if (!isAnimationPlayed)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            // 检测任意按键而不只是空格键
+            if (Input.anyKeyDown)
             {
                 PlayIntroAnimation();
             }
         }
         else if (isSelectingDifficulty)
         {
-            // 检查是否按下了特定用于切换难度的键（默认为Space）
-            if (Input.GetKeyDown(difficultyChangeKey))
+            // 检查是否按下了任意键来切换难度
+            if (Input.anyKeyDown && !CheckAnyConfirmKeyPressed())
             {
                 CycleDifficulty();
             }
@@ -95,7 +95,7 @@ public class DifficultySelector : MonoBehaviour
                     isButtonPressed = true;
 
                     if (textFader != null)
-                        textFader.Show("Press all buttons to enter level", true);
+                        textFader.Show("Hold ASDF to enter level", true);
                 }
 
                 float heldTime = Time.time - pressStartTime;
@@ -134,7 +134,7 @@ public class DifficultySelector : MonoBehaviour
                 }
 
                 if (textFader != null)
-                    textFader.Show("Hold to enter difficulty", true);
+                    textFader.Show("Hold ASDF to enter difficulty", true);
             }
         }
     }
@@ -150,6 +150,19 @@ public class DifficultySelector : MonoBehaviour
             }
         }
         return true;
+    }
+    
+    // 检查是否有任何确认键被按下（用于防止确认键被用作切换难度键）
+    private bool CheckAnyConfirmKeyPressed()
+    {
+        foreach (KeyCode key in confirmKeys)
+        {
+            if (Input.GetKeyDown(key))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void PlayIntroAnimation()
@@ -191,7 +204,7 @@ public class DifficultySelector : MonoBehaviour
 
         if (textFader != null)
         {
-            textFader.Show("Press SPACE to change difficulty\nHold ASDF to enter", true);
+            textFader.Show("Press ANY KEY to change difficulty\nHold ASDF to enter", true);
         }
     }
 

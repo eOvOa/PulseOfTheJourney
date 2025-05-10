@@ -1,32 +1,39 @@
 using UnityEngine;
 using TMPro;
-using System.Collections.Generic;
+using System.Collections;
 
-public class TextAfterSecondKeyBlink : MonoBehaviour
+public class TextOnAnyKeyBlink : MonoBehaviour
 {
     public TextMeshProUGUI text;
     public float blinkSpeed = 1f;
+    public float delayBeforeBlink = 1f; // 延迟开始闪烁
 
     private bool shouldBlink = false;
-    private float timer;
-    private HashSet<KeyCode> pressedKeys = new HashSet<KeyCode>();
+    private float timer = 0f;
+    private bool triggered = false;
 
     void Start()
     {
         if (text == null)
         {
-            Debug.LogError("[TextAfterSecondKeyBlink] Text not assigned!");
+            Debug.LogError("[TextOnAnyKeyBlink] Text not assigned!");
             return;
         }
 
-        text.gameObject.SetActive(true); // 强制激活 Text 对象
+        text.gameObject.SetActive(true);
         SetAlpha(0f); // 初始隐藏
-        Debug.Log("[TextAfterSecondKeyBlink] Initialized. Waiting for input...");
     }
 
     void Update()
     {
         if (text == null) return;
+
+        if (!triggered && Input.anyKeyDown)
+        {
+            triggered = true;
+            Debug.Log("[TextBlink] Key pressed — will start blinking in " + delayBeforeBlink + "s");
+            StartCoroutine(StartBlinkAfterDelay());
+        }
 
         if (shouldBlink)
         {
@@ -34,45 +41,14 @@ public class TextAfterSecondKeyBlink : MonoBehaviour
             float alpha = (Mathf.Sin(timer * Mathf.PI / blinkSpeed) + 1f) / 2f;
             SetAlpha(alpha);
         }
-        else
-        {
-            foreach (KeyCode key in System.Enum.GetValues(typeof(KeyCode)))
-            {
-                if (Input.GetKeyDown(key) && IsRealKey(key))
-                {
-                    if (!pressedKeys.Contains(key))
-                    {
-                        pressedKeys.Add(key);
-                        Debug.Log("[TextAfterSecondKeyBlink] Key pressed: " + key);
-                    }
-
-                    if (pressedKeys.Count >= 2)
-                    {
-                        Debug.Log("[TextAfterSecondKeyBlink] Two distinct keys detected. Starting blink.");
-                        shouldBlink = true;
-                        timer = 0;
-                        SetAlpha(1f);
-                        break;
-                    }
-                }
-            }
-
-            // 临时调试热键：按 M 直接触发
-            if (Input.GetKeyDown(KeyCode.M))
-            {
-                Debug.Log("[TextAfterSecondKeyBlink] Manual trigger by M key.");
-                shouldBlink = true;
-                timer = 0;
-                SetAlpha(1f);
-            }
-        }
     }
 
-    private bool IsRealKey(KeyCode key)
+    private IEnumerator StartBlinkAfterDelay()
     {
-        // 仅接受字母与数字键
-        return (key >= KeyCode.A && key <= KeyCode.Z) ||
-               (key >= KeyCode.Alpha0 && key <= KeyCode.Alpha9);
+        yield return new WaitForSeconds(delayBeforeBlink);
+        shouldBlink = true;
+        timer = 0f;
+        Debug.Log("[TextBlink] Blinking started.");
     }
 
     private void SetAlpha(float alpha)

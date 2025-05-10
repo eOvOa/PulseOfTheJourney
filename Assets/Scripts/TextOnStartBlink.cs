@@ -11,32 +11,38 @@ public class TextOnStartBlink : MonoBehaviour
 
     void Start()
     {
-        SetAlpha(1f); // 默认可见
+        if (text == null)
+        {
+            Debug.LogError("[TextOnStartBlink] Text not assigned.");
+            return;
+        }
+
+        text.gameObject.SetActive(true);
+        SetAlpha(1f);
     }
 
     void Update()
     {
-        if (shouldBlink)
-        {
-            timer += Time.deltaTime;
-            float alpha = (Mathf.Sin(timer * Mathf.PI / blinkSpeed) + 1f) / 2f;
-            SetAlpha(alpha);
+        if (text == null || !shouldBlink) return;
 
-            if (Input.anyKeyDown)
-            {
-                shouldBlink = false;
-                SetAlpha(0f);
-                enabled = false;
-            }
+        // 闪烁效果
+        timer += Time.deltaTime;
+        float alpha = (Mathf.Sin(timer * Mathf.PI / blinkSpeed) + 1f) / 2f;
+        SetAlpha(alpha);
+
+        // 任意按键（任何设备）立即停止
+        if (Input.anyKeyDown)
+        {
+            shouldBlink = false;
+            SetAlpha(0f);
+            Debug.Log("[TextOnStartBlink] Any key detected, hiding text.");
+            enabled = false;
         }
     }
 
     private void SetAlpha(float alpha)
     {
-        if (text != null)
-        {
-            Color c = text.color;
-            text.color = new Color(c.r, c.g, c.b, alpha);
-        }
+        Color c = text.color;
+        text.color = new Color(c.r, c.g, c.b, alpha);
     }
 }
