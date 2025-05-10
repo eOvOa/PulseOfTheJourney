@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/InTrain.unity
     guid: cc35f3c6924f7474d95c52e696062c9e
   - enabled: 1
-    path: Assets/Scenes/Game.unity
+    path: Assets/Scenes/Hard.unity
     guid: c7f1f79fadc1b4ee3a2f144234c1155f
   - enabled: 1
     path: Assets/Scenes/Easy.unity
