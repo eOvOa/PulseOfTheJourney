@@ -14,8 +14,8 @@ public class Note : MonoBehaviour
     private bool autoMissed = false;
 
     public static float JudgementLineX = 2.932941f;
-    private static float perfectWindow = 0.15f;
-    private static float goodWindow = 0.3f;     
+    private static float perfectWindow = 0.3f;
+    private static float goodWindow = 0.5f;     
 
     private SpriteRenderer sr;
     private Animator animator;
