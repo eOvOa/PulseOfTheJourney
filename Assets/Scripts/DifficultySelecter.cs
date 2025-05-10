@@ -26,11 +26,22 @@ public class DifficultySelector : MonoBehaviour
     [Header("提示文字管理")]
     public TextFader textFader;
 
+    [Header("难度切换按键")]
+    public KeyCode difficultyChangeKey = KeyCode.Space; // 用于切换难度的键
+
     private bool isAnimationPlayed = false;
     private bool isSelectingDifficulty = false;
     private float pressStartTime = 0f;
     private bool isButtonPressed = false;
     private bool allKeysHeld = false;
+    
+    // 用于确认的ASDF键
+    private KeyCode[] confirmKeys = new KeyCode[] { 
+        KeyCode.A, 
+        KeyCode.S, 
+        KeyCode.D, 
+        KeyCode.F 
+    };
 
     public static int selectedDifficulty = 0;
 
@@ -67,15 +78,14 @@ public class DifficultySelector : MonoBehaviour
         }
         else if (isSelectingDifficulty)
         {
-            if (Input.anyKeyDown)
+            // 检查是否按下了特定用于切换难度的键（默认为Space）
+            if (Input.GetKeyDown(difficultyChangeKey))
             {
                 CycleDifficulty();
             }
 
-            allKeysHeld = Input.GetKey(KeyCode.A) &&
-                          Input.GetKey(KeyCode.S) &&
-                          Input.GetKey(KeyCode.D) &&
-                          Input.GetKey(KeyCode.F);
+            // 检查是否同时按下了ASDF键
+            allKeysHeld = CheckAllConfirmKeysHeld();
 
             if (allKeysHeld)
             {
@@ -129,6 +139,19 @@ public class DifficultySelector : MonoBehaviour
         }
     }
 
+    // 检查是否所有确认键（ASDF）都被按住
+    private bool CheckAllConfirmKeysHeld()
+    {
+        foreach (KeyCode key in confirmKeys)
+        {
+            if (!Input.GetKey(key))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void PlayIntroAnimation()
     {
         if (introAnimator != null)
@@ -168,7 +191,7 @@ public class DifficultySelector : MonoBehaviour
 
         if (textFader != null)
         {
-            textFader.Show("Hold to enter difficulty", true);
+            textFader.Show("Press SPACE to change difficulty\nHold ASDF to enter", true);
         }
     }
 
