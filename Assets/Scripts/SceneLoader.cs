@@ -1,45 +1,39 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class SceneLoader : MonoBehaviour
 {
     private bool isAnimationPlaying = false;
-    public Animator openAnimator; // Reference to the three-needle animator
-    
+    public Animator openAnimator; // 在 Inspector 中挂带 Animator 的对象
+
     void Update()
     {
-        // Check if space key is pressed and animation is not already playing
-        if (!isAnimationPlaying && Input.GetKeyDown(KeyCode.Space))
+        if (!isAnimationPlaying && Input.anyKeyDown)
         {
             isAnimationPlaying = true;
-            PlayThreeNeedleAnimation();
+            StartCoroutine(PlayAndLoad());
         }
     }
-    
-    void PlayThreeNeedleAnimation()
+
+    IEnumerator PlayAndLoad()
     {
-        // Play the animation
         openAnimator.SetTrigger("Play");
-        
-        // Get the length of the animation
-        AnimationClip[] clips = openAnimator.runtimeAnimatorController.animationClips;
-        float animationLength = 0f;
-        
-        foreach (AnimationClip clip in clips)
+
+        float animationLength = 1.5f; // 默认时长，防止没找到动画
+
+        // 获取动画实际时长
+        foreach (AnimationClip clip in openAnimator.runtimeAnimatorController.animationClips)
         {
-            if (clip.name == "ThreeNeedleAnimation") // Replace with your actual animation name
+            if (clip.name == "start")
             {
                 animationLength = clip.length;
                 break;
             }
         }
-        
-        // Load the Game scene after the animation completes
-        Invoke("LoadGameScene", animationLength);
-    }
-    
-    void LoadGameScene()
-    {
-        SceneManager.LoadScene("Game");
+
+        yield return new WaitForSeconds(animationLength); // 等动画播放完
+
+        SceneManager.LoadScene("Game"); // 切换场景
     }
 }
