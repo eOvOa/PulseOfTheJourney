@@ -1,15 +1,18 @@
 using UnityEngine;
 using System.Collections;
+using TMPro;
 
 [RequireComponent(typeof(AudioSource))]
 public class SoundtrackManager : MonoBehaviour
 {
     private AudioSource audioSource;
     [SerializeField] private float defaultFadeOutDuration = 1.0f;
-    [SerializeField] private float animationDuration = 2.0f; // 设置您的动画时长
-    private Coroutine fadeCoroutine;
-    
+    [SerializeField] private float animationDuration = 2.0f;
+
     public SpriteRenderer backgroundRenderer;
+    public TextFader textFader; // 新增：统一管理 hintText 和 allButtonText
+
+    private Coroutine fadeCoroutine;
     private Coroutine spriteFadeCoroutine;
 
     void Start()
@@ -26,11 +29,17 @@ public class SoundtrackManager : MonoBehaviour
             audioSource.volume = 1.0f;
             audioSource.Play();
         }
-        
+
         if (backgroundRenderer != null)
         {
             Color color = backgroundRenderer.color;
             backgroundRenderer.color = new Color(color.r, color.g, color.b, 1f);
+        }
+
+        if (textFader != null)
+        {
+            textFader.SetHintAlpha(1f);
+            textFader.SetAllButtonAlpha(0f);
         }
     }
 
@@ -41,32 +50,20 @@ public class SoundtrackManager : MonoBehaviour
 
     public void FadeOutAndPause(float duration)
     {
-        // 淡出音频
         if (audioSource != null)
         {
-            if (fadeCoroutine != null)
-            {
-                StopCoroutine(fadeCoroutine);
-            }
-            
+            if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
             fadeCoroutine = StartCoroutine(FadeOutAudio(duration));
         }
-        
-        // 等待动画完成后淡出Sprite
+
         StartCoroutine(WaitAndFadeOutSprite(duration));
     }
 
     private IEnumerator WaitAndFadeOutSprite(float duration)
     {
-        // 等待动画完成
         yield return new WaitForSeconds(animationDuration);
-        
-        // 现在淡出Sprite
-        if (spriteFadeCoroutine != null)
-        {
-            StopCoroutine(spriteFadeCoroutine);
-        }
-        
+
+        if (spriteFadeCoroutine != null) StopCoroutine(spriteFadeCoroutine);
         spriteFadeCoroutine = StartCoroutine(FadeOutSprite(duration));
     }
 
@@ -85,7 +82,7 @@ public class SoundtrackManager : MonoBehaviour
         audioSource.Pause();
         fadeCoroutine = null;
     }
-    
+
     private IEnumerator FadeOutSprite(float duration)
     {
         Color startColor = backgroundRenderer.color;
@@ -102,38 +99,27 @@ public class SoundtrackManager : MonoBehaviour
         backgroundRenderer.color = targetColor;
         spriteFadeCoroutine = null;
     }
-    
+
     public void FadeIn(float duration)
     {
-        // 淡入音频
         if (audioSource != null)
         {
-            if (fadeCoroutine != null)
-            {
-                StopCoroutine(fadeCoroutine);
-            }
+            if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
             fadeCoroutine = StartCoroutine(FadeInAudio(duration));
         }
-        
-        // 淡入Sprite
+
         if (backgroundRenderer != null)
         {
-            if (spriteFadeCoroutine != null)
-            {
-                StopCoroutine(spriteFadeCoroutine);
-            }
+            if (spriteFadeCoroutine != null) StopCoroutine(spriteFadeCoroutine);
             spriteFadeCoroutine = StartCoroutine(FadeInSprite(duration));
         }
     }
-    
+
     private IEnumerator FadeInAudio(float duration)
     {
         audioSource.volume = 0f;
-        if (!audioSource.isPlaying)
-        {
-            audioSource.Play();
-        }
-        
+        if (!audioSource.isPlaying) audioSource.Play();
+
         float timer = 0;
         while (timer < duration)
         {
@@ -141,24 +127,24 @@ public class SoundtrackManager : MonoBehaviour
             audioSource.volume = Mathf.Lerp(0, 1, timer / duration);
             yield return null;
         }
-        
+
         audioSource.volume = 1f;
         fadeCoroutine = null;
     }
-    
+
     private IEnumerator FadeInSprite(float duration)
     {
         Color startColor = backgroundRenderer.color;
         Color targetColor = new Color(startColor.r, startColor.g, startColor.b, 1f);
-        
         float timer = 0;
+
         while (timer < duration)
         {
             timer += Time.deltaTime;
             backgroundRenderer.color = Color.Lerp(startColor, targetColor, timer / duration);
             yield return null;
         }
-        
+
         backgroundRenderer.color = targetColor;
         spriteFadeCoroutine = null;
     }

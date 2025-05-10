@@ -1,38 +1,68 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class TextFader : MonoBehaviour
 {
-    public TextMeshProUGUI text; // 挂载要闪烁的文本
-    public float fadeSpeed = 1.2f; // 控制闪烁速度
+    public TextMeshProUGUI hintText;
+    public TextMeshProUGUI allButtonText;
 
-    private float alpha = 1f;
-    private bool fadingOut = true;
+    private Coroutine fadeCoroutine;
 
-    void Update()
+    public void Show(string message, bool isHint)
     {
-        if (fadingOut)
+        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+
+        if (isHint && hintText != null)
         {
-            alpha -= Time.deltaTime * fadeSpeed;
-            if (alpha <= 0f)
-            {
-                alpha = 0f;
-                fadingOut = false;
-            }
+            hintText.text = message;
+            fadeCoroutine = StartCoroutine(FadeTextAlpha(hintText, 0f, 1f, 0.5f));
         }
-        else
+        else if (!isHint && allButtonText != null)
         {
-            alpha += Time.deltaTime * fadeSpeed;
-            if (alpha >= 1f)
-            {
-                alpha = 1f;
-                fadingOut = true;
-            }
+            allButtonText.text = message;
+            fadeCoroutine = StartCoroutine(FadeTextAlpha(allButtonText, 0f, 1f, 0.5f));
+        }
+    }
+
+    public void Hide()
+    {
+        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+        if (hintText != null) fadeCoroutine = StartCoroutine(FadeTextAlpha(hintText, hintText.color.a, 0f, 0.5f));
+        if (allButtonText != null) fadeCoroutine = StartCoroutine(FadeTextAlpha(allButtonText, allButtonText.color.a, 0f, 0.5f));
+    }
+
+    public void SetHintAlpha(float alpha)
+    {
+        if (hintText != null)
+        {
+            Color c = hintText.color;
+            hintText.color = new Color(c.r, c.g, c.b, alpha);
+        }
+    }
+
+    public void SetAllButtonAlpha(float alpha)
+    {
+        if (allButtonText != null)
+        {
+            Color c = allButtonText.color;
+            allButtonText.color = new Color(c.r, c.g, c.b, alpha);
+        }
+    }
+
+    private IEnumerator FadeTextAlpha(TextMeshProUGUI text, float from, float to, float duration)
+    {
+        float timer = 0;
+        Color c = text.color;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            float alpha = Mathf.Lerp(from, to, timer / duration);
+            text.color = new Color(c.r, c.g, c.b, alpha);
+            yield return null;
         }
 
-        Color currentColor = text.color;
-        currentColor.a = alpha;
-        text.color = currentColor;
+        text.color = new Color(c.r, c.g, c.b, to);
     }
 }
-

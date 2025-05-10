@@ -10,27 +10,28 @@ public class DifficultySelector : MonoBehaviour
     public float fadeOutDuration = 1.0f;
 
     [Header("难度选择")]
-    public GameObject[] difficultySprites; // 三个 GameObject，挂的是 easy/medium/hard 图
+    public GameObject[] difficultySprites;
     private int currentDifficultyIndex = 0;
 
     [Header("动画设置")]
-    public Animator introAnimator; // 播放动画
+    public Animator introAnimator;
     public string animationTriggerName = "Play";
 
     [Header("场景切换")]
-    public string targetSceneName = "Game";
-    public float longPressTime = 2.0f; // 长按时间确认
+    public float longPressTime = 2.0f;
 
     [Header("确认进度条")]
-    public Slider holdProgressBar; // 拖入 UI > Slider，默认 inactive
+    public Slider holdProgressBar;
 
-    // 状态控制
+    [Header("提示文字管理")]
+    public TextFader textFader;
+
     private bool isAnimationPlayed = false;
     private bool isSelectingDifficulty = false;
     private float pressStartTime = 0f;
     private bool isButtonPressed = false;
+    private bool allKeysHeld = false;
 
-    // 静态难度变量
     public static int selectedDifficulty = 0;
 
     void Start()
@@ -38,17 +39,20 @@ public class DifficultySelector : MonoBehaviour
         if (soundtrackManager == null)
             soundtrackManager = FindObjectOfType<SoundtrackManager>();
 
-        // 初始化所有难度图标为隐藏
         foreach (GameObject sprite in difficultySprites)
         {
             if (sprite != null) sprite.SetActive(false);
         }
 
-        // 隐藏进度条
         if (holdProgressBar != null)
         {
             holdProgressBar.gameObject.SetActive(false);
             holdProgressBar.value = 0f;
+        }
+
+        if (textFader != null)
+        {
+            textFader.Show("Press SPACE to start", true);
         }
     }
 
@@ -63,17 +67,27 @@ public class DifficultySelector : MonoBehaviour
         }
         else if (isSelectingDifficulty)
         {
-            // 任意按键按下，切换难度 + 开始计时
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) || Input.anyKeyDown)
+            if (Input.anyKeyDown)
             {
-                pressStartTime = Time.time;
-                isButtonPressed = true;
                 CycleDifficulty();
             }
 
-            // 正在长按：更新进度条
-            if (isButtonPressed)
+            allKeysHeld = Input.GetKey(KeyCode.A) &&
+                          Input.GetKey(KeyCode.S) &&
+                          Input.GetKey(KeyCode.D) &&
+                          Input.GetKey(KeyCode.F);
+
+            if (allKeysHeld)
             {
+                if (!isButtonPressed)
+                {
+                    pressStartTime = Time.time;
+                    isButtonPressed = true;
+
+                    if (textFader != null)
+                        textFader.Show("Press all buttons to enter level", true);
+                }
+
                 float heldTime = Time.time - pressStartTime;
 
                 if (holdProgressBar != null)
@@ -92,14 +106,14 @@ public class DifficultySelector : MonoBehaviour
 
                     if (holdProgressBar != null)
                     {
-                        holdProgressBar.gameObject.SetActive(false);
                         holdProgressBar.value = 0f;
+                        holdProgressBar.gameObject.SetActive(false);
                     }
+
+                    if (textFader != null) textFader.Hide();
                 }
             }
-
-            // 松手取消
-            if (isButtonPressed && (Input.GetKeyUp(KeyCode.Space) || Input.GetMouseButtonUp(0) || !Input.anyKey))
+            else if (isButtonPressed)
             {
                 isButtonPressed = false;
 
@@ -108,6 +122,9 @@ public class DifficultySelector : MonoBehaviour
                     holdProgressBar.value = 0f;
                     holdProgressBar.gameObject.SetActive(false);
                 }
+
+                if (textFader != null)
+                    textFader.Show("Hold to enter difficulty", true);
             }
         }
     }
@@ -148,6 +165,11 @@ public class DifficultySelector : MonoBehaviour
     {
         isSelectingDifficulty = true;
         UpdateDifficultyDisplay();
+
+        if (textFader != null)
+        {
+            textFader.Show("Hold to enter difficulty", true);
+        }
     }
 
     private void CycleDifficulty()
@@ -182,7 +204,20 @@ public class DifficultySelector : MonoBehaviour
     private IEnumerator LoadSceneAfterFadeOut()
     {
         yield return new WaitForSeconds(fadeOutDuration);
-        SceneManager.LoadScene(targetSceneName);
+
+        string sceneToLoad = GetSceneNameForDifficulty(currentDifficultyIndex);
+        SceneManager.LoadScene(sceneToLoad);
+    }
+
+    private string GetSceneNameForDifficulty(int index)
+    {
+        switch (index)
+        {
+            case 0: return "Easy";
+            case 1: return "Medium";
+            case 2: return "Game";
+            default: return "Game";
+        }
     }
 
     public static int GetSelectedDifficulty()
